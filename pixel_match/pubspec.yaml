@@ -1,0 +1,56 @@
+name: pixel_match
+description: Level up your love life. Only the worthy match.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  provider: ^6.1.2
+
+  # Game engine
+  flame: ^1.14.0
+
+  # Routing
+  go_router: ^13.2.0
+
+  # Networking
+  http: ^1.2.1
+  web_socket_channel: ^2.4.0
+
+  # Image handling
+  image_picker: ^1.0.7
+  cached_network_image: ^3.3.1
+
+  # UI helpers
+  flutter_card_swiper: ^7.0.0
+  shimmer: ^3.0.0
+  google_fonts: ^6.1.0
+  flutter_animate: ^4.5.0
+
+  # Local storage (for JWT token)
+  shared_preferences: ^2.2.2
+
+  # Utilities
+  uuid: ^4.3.3
+  intl: ^0.19.0
+  url_launcher: ^6.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/sprites/
+    - assets/audio/
+    - assets/fonts/
