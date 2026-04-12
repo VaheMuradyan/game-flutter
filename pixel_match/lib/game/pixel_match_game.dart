@@ -4,6 +4,7 @@ import 'package:flutter/painting.dart';
 import 'components/arena.dart';
 import 'components/tower.dart';
 import 'components/troop.dart';
+import 'components/spell.dart';
 import 'class_colors.dart';
 
 class PixelMatchGame extends FlameGame with TapCallbacks {
@@ -23,6 +24,9 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
   void Function(double x, double y)? onTroopDeployed;
   void Function(int damage)? onTowerHit;
   void Function(bool playerWon)? onBattleEnd;
+  void Function(int damage)? onSpellHit;
+
+  static const double spellCost = 5.0;
 
   PixelMatchGame({required this.playerClass});
 
@@ -104,6 +108,27 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
       playerTower.health = healthRemaining;
     } else {
       enemyTower.health = healthRemaining;
+    }
+  }
+
+  void castSpell() {
+    if (mana >= spellCost) {
+      mana -= spellCost;
+      final spell = Spell(
+        target: enemyTower.position.clone(),
+        color: ClassColors.forClass(playerClass),
+        damage: 100,
+        onImpact: (position, damage) {
+          enemyTower.health -= damage;
+          if (enemyTower.health < 0) enemyTower.health = 0;
+          onSpellHit?.call(damage);
+          if (enemyTower.isDestroyed) {
+            onBattleEnd?.call(true);
+            pauseEngine();
+          }
+        },
+      )..position = playerTower.position.clone();
+      add(spell);
     }
   }
 

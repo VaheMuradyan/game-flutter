@@ -5,8 +5,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../config/theme.dart';
-import '../../config/constants.dart';
 import '../../widgets/level_badge.dart';
+import '../../utils/photo_url_helper.dart';
 import '../../widgets/health_bar.dart';
 import '../../utils/xp_calculator.dart';
 import '../../utils/league_helper.dart';
@@ -44,8 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(children: [
               CircleAvatar(radius: 32, backgroundColor: AppTheme.surfaceColor,
                   backgroundImage: user.photoUrl.isNotEmpty
-                      ? NetworkImage(user.photoUrl.startsWith('http')
-                          ? user.photoUrl : '${AppConstants.apiBaseUrl}${user.photoUrl}')
+                      ? NetworkImage(PhotoUrlHelper.fullUrl(user.photoUrl))
                       : null,
                   child: user.photoUrl.isEmpty ? const Icon(Icons.person) : null),
               const SizedBox(width: 16),

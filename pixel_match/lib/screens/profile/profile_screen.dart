@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../config/theme.dart';
-import '../../config/constants.dart';
 import '../../widgets/level_badge.dart';
+import '../../utils/photo_url_helper.dart';
 import '../../widgets/health_bar.dart';
 import '../../utils/league_helper.dart';
 import '../../utils/xp_calculator.dart';
@@ -43,9 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final leagueColor = LeagueHelper.colorForLeague(user.league);
       final winRate = user.wins + user.losses > 0
           ? ((user.wins / (user.wins + user.losses)) * 100).toStringAsFixed(1) : '0.0';
-      final photoUrl = user.photoUrl.isNotEmpty
-          ? (user.photoUrl.startsWith('http') ? user.photoUrl : '${AppConstants.apiBaseUrl}${user.photoUrl}')
-          : '';
+      final photoUrl = PhotoUrlHelper.fullUrl(user.photoUrl);
 
       return Scaffold(
         appBar: AppBar(title: const Text('PROFILE'), centerTitle: true,

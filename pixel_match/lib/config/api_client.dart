@@ -3,6 +3,15 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constants.dart';
 
+class ApiException implements Exception {
+  final int statusCode;
+  final String message;
+  ApiException(this.statusCode, this.message);
+
+  @override
+  String toString() => message;
+}
+
 class ApiClient {
   static const _tokenKey = 'jwt_token';
 
@@ -29,10 +38,20 @@ class ApiClient {
     };
   }
 
+  /// Parses response body and throws [ApiException] on non-2xx status.
+  static Map<String, dynamic> _handleResponse(http.Response resp) {
+    final body = jsonDecode(resp.body) as Map<String, dynamic>;
+    if (resp.statusCode >= 200 && resp.statusCode < 300) {
+      return body;
+    }
+    final msg = body['error'] as String? ?? 'Request failed (${resp.statusCode})';
+    throw ApiException(resp.statusCode, msg);
+  }
+
   static Future<Map<String, dynamic>> get(String path) async {
     final url = Uri.parse('${AppConstants.apiBaseUrl}$path');
     final resp = await http.get(url, headers: await _headers());
-    return jsonDecode(resp.body) as Map<String, dynamic>;
+    return _handleResponse(resp);
   }
 
   static Future<Map<String, dynamic>> post(
@@ -43,7 +62,7 @@ class ApiClient {
       headers: await _headers(),
       body: jsonEncode(body),
     );
-    return jsonDecode(resp.body) as Map<String, dynamic>;
+    return _handleResponse(resp);
   }
 
   static Future<Map<String, dynamic>> put(
@@ -54,7 +73,7 @@ class ApiClient {
       headers: await _headers(),
       body: jsonEncode(body),
     );
-    return jsonDecode(resp.body) as Map<String, dynamic>;
+    return _handleResponse(resp);
   }
 
   /// Upload a file via multipart POST. Returns the response body.
@@ -67,6 +86,6 @@ class ApiClient {
     request.files.add(await http.MultipartFile.fromPath(fieldName, filePath));
     final streamResp = await request.send();
     final resp = await http.Response.fromStream(streamResp);
-    return jsonDecode(resp.body) as Map<String, dynamic>;
+    return _handleResponse(resp);
   }
 }

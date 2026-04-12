@@ -2,7 +2,7 @@ package websocket
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"sync"
 	"time"
@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	ws "github.com/gorilla/websocket"
+	"pixelmatch-server/config"
 	"pixelmatch-server/database"
 )
 
@@ -134,57 +135,45 @@ func saveBattleResult(room *BattleRoom, winnerUID string) {
 		INSERT INTO battles (player1_uid, player2_uid, winner_uid, player1_health, player2_health, duration, xp_awarded)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`, room.Players[0].UID, room.Players[1].UID, winnerUID,
-		room.TowerHealth[0], room.TowerHealth[1], room.Duration, 50)
+		room.TowerHealth[0], room.TowerHealth[1], room.Duration, config.XPPerWin)
 	if err != nil {
-		log.Printf("Failed to save battle: %v", err)
+		slog.Error("failed to save battle", "err", err)
 	}
 
-	// Award XP
 	awardXP(room.Players[0].UID, room.Players[0].UID == winnerUID)
 	awardXP(room.Players[1].UID, room.Players[1].UID == winnerUID)
 }
 
 func awardXP(uid string, won bool) {
-	delta := -20
+	delta := config.XPPerLoss
 	winIncr := 0
 	lossIncr := 1
 	if won {
-		delta = 50
+		delta = config.XPPerWin
 		winIncr = 1
 		lossIncr = 0
 	}
 
-	// Get current XP
 	var currentXP int
-	database.DB.QueryRow("SELECT xp FROM users WHERE uid = $1", uid).Scan(&currentXP)
+	if err := database.DB.QueryRow("SELECT xp FROM users WHERE uid = $1", uid).Scan(&currentXP); err != nil {
+		slog.Error("failed to get user XP", "uid", uid, "err", err)
+		return
+	}
 
 	newXP := currentXP + delta
-	if newXP < 0 {
-		newXP = 0
+	if newXP < config.MinXP {
+		newXP = config.MinXP
 	}
 
 	newLevel := (newXP / 100) + 1
-	newLeague := leagueForLevel(newLevel)
+	newLeague := config.LeagueForLevel(newLevel)
 
-	database.DB.Exec(`
+	if _, err := database.DB.Exec(`
 		UPDATE users SET xp = $1, level = $2, league = $3,
 		       wins = wins + $4, losses = losses + $5
 		WHERE uid = $6
-	`, newXP, newLevel, newLeague, winIncr, lossIncr, uid)
-}
-
-func leagueForLevel(level int) string {
-	switch {
-	case level >= 100:
-		return "Legend"
-	case level >= 61:
-		return "Diamond"
-	case level >= 31:
-		return "Gold"
-	case level >= 11:
-		return "Silver"
-	default:
-		return "Bronze"
+	`, newXP, newLevel, newLeague, winIncr, lossIncr, uid); err != nil {
+		slog.Error("failed to update user XP", "uid", uid, "err", err)
 	}
 }
 
@@ -192,7 +181,7 @@ func leagueForLevel(level int) string {
 func HandleBattleWS(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Printf("WS upgrade error: %v", err)
+		slog.Error("WS upgrade error", "err", err)
 		return
 	}
 
@@ -259,9 +248,9 @@ func HandleBattleWS(c *gin.Context) {
 				room := &BattleRoom{
 					ID:          uuid.New().String(),
 					Players:     [2]*Player{p1, p2},
-					TowerHealth: [2]int{1000, 1000},
+					TowerHealth: [2]int{config.StartingTowerHealth, config.StartingTowerHealth},
 					StartTime:   time.Now(),
-					Duration:    180,
+					Duration:    config.BattleDurationSeconds,
 				}
 
 				battleMu.Lock()

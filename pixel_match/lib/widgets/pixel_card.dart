@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/user_model.dart';
 import '../config/theme.dart';
-import '../config/constants.dart';
+import '../utils/photo_url_helper.dart';
 import 'level_badge.dart';
 
 class PixelCard extends StatelessWidget {
@@ -11,15 +11,9 @@ class PixelCard extends StatelessWidget {
 
   const PixelCard({super.key, required this.user, this.showStats = false});
 
-  String _fullPhotoUrl(String photoUrl) {
-    if (photoUrl.isEmpty) return '';
-    if (photoUrl.startsWith('http')) return photoUrl;
-    return '${AppConstants.apiBaseUrl}$photoUrl';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final url = _fullPhotoUrl(user.photoUrl);
+    final url = PhotoUrlHelper.fullUrl(user.photoUrl);
     return Card(
       elevation: 4,
       child: Column(

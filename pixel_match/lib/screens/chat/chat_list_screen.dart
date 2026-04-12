@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/chat_provider.dart';
 import '../../config/theme.dart';
-import '../../config/constants.dart';
 import '../../widgets/level_badge.dart';
+import '../../utils/photo_url_helper.dart';
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -38,9 +38,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
           final match = cp.matches[i];
           final other = match.otherUser;
           if (other == null) return const SizedBox.shrink();
-          final photoUrl = other.photoUrl.isNotEmpty
-              ? (other.photoUrl.startsWith('http') ? other.photoUrl : '${AppConstants.apiBaseUrl}${other.photoUrl}')
-              : '';
+          final photoUrl = PhotoUrlHelper.fullUrl(other.photoUrl);
           return ListTile(
             leading: CircleAvatar(
               backgroundImage: photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null,

@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"pixelmatch-server/config"
 	"pixelmatch-server/database"
+	"pixelmatch-server/helpers"
 	"pixelmatch-server/middleware"
 	"pixelmatch-server/models"
 )
@@ -19,35 +20,32 @@ type AuthHandler struct {
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helpers.RespondError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash password"})
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrInternal)
 		return
 	}
 
-	var user models.User
-	err = database.DB.QueryRow(`
+	row := database.DB.QueryRow(`
 		INSERT INTO users (email, password_hash)
 		VALUES ($1, $2)
 		RETURNING uid, email, display_name, character_class, photo_url,
 		          level, xp, league, wins, losses, is_premium, created_at
-	`, req.Email, string(hash)).Scan(
-		&user.UID, &user.Email, &user.DisplayName, &user.CharacterClass,
-		&user.PhotoUrl, &user.Level, &user.XP, &user.League,
-		&user.Wins, &user.Losses, &user.IsPremium, &user.CreatedAt,
-	)
+	`, req.Email, string(hash))
+
+	user, err := helpers.ScanUser(row)
 	if err != nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "email already registered"})
+		helpers.RespondError(c, http.StatusConflict, "email already registered")
 		return
 	}
 
 	token, err := middleware.GenerateToken(user.UID, h.Cfg.JWTSecret)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create token"})
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrInternal)
 		return
 	}
 
@@ -57,38 +55,34 @@ func (h *AuthHandler) Register(c *gin.Context) {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helpers.RespondError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	var user models.User
-	var passwordHash string
-	err := database.DB.QueryRow(`
+	row := database.DB.QueryRow(`
 		SELECT uid, email, password_hash, display_name, character_class, photo_url,
 		       level, xp, league, wins, losses, is_premium, created_at
 		FROM users WHERE email = $1
-	`, req.Email).Scan(
-		&user.UID, &user.Email, &passwordHash, &user.DisplayName,
-		&user.CharacterClass, &user.PhotoUrl, &user.Level, &user.XP,
-		&user.League, &user.Wins, &user.Losses, &user.IsPremium, &user.CreatedAt,
-	)
+	`, req.Email)
+
+	user, passwordHash, err := helpers.ScanUserWithPassword(row)
 	if err == sql.ErrNoRows {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		helpers.RespondError(c, http.StatusUnauthorized, helpers.ErrUnauthorized)
 		return
 	}
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrInternal)
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(req.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		helpers.RespondError(c, http.StatusUnauthorized, helpers.ErrUnauthorized)
 		return
 	}
 
 	token, err := middleware.GenerateToken(user.UID, h.Cfg.JWTSecret)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create token"})
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrInternal)
 		return
 	}
 
@@ -100,7 +94,7 @@ func (h *AuthHandler) CompleteOnboarding(c *gin.Context) {
 
 	var req models.OnboardingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helpers.RespondError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -109,23 +103,20 @@ func (h *AuthHandler) CompleteOnboarding(c *gin.Context) {
 		"Rogue": true, "Healer": true,
 	}
 	if !validClasses[req.CharacterClass] {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid character class"})
+		helpers.RespondError(c, http.StatusBadRequest, "invalid character class")
 		return
 	}
 
-	var user models.User
-	err := database.DB.QueryRow(`
+	row := database.DB.QueryRow(`
 		UPDATE users SET display_name = $1, character_class = $2
 		WHERE uid = $3
 		RETURNING uid, email, display_name, character_class, photo_url,
 		          level, xp, league, wins, losses, is_premium, created_at
-	`, req.DisplayName, req.CharacterClass, uid).Scan(
-		&user.UID, &user.Email, &user.DisplayName, &user.CharacterClass,
-		&user.PhotoUrl, &user.Level, &user.XP, &user.League,
-		&user.Wins, &user.Losses, &user.IsPremium, &user.CreatedAt,
-	)
+	`, req.DisplayName, req.CharacterClass, uid)
+
+	user, err := helpers.ScanUser(row)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrUpdateFailed)
 		return
 	}
 
@@ -135,18 +126,15 @@ func (h *AuthHandler) CompleteOnboarding(c *gin.Context) {
 func (h *AuthHandler) GetMe(c *gin.Context) {
 	uid := c.GetString("uid")
 
-	var user models.User
-	err := database.DB.QueryRow(`
+	row := database.DB.QueryRow(`
 		SELECT uid, email, display_name, character_class, photo_url,
 		       level, xp, league, wins, losses, is_premium, created_at
 		FROM users WHERE uid = $1
-	`, uid).Scan(
-		&user.UID, &user.Email, &user.DisplayName, &user.CharacterClass,
-		&user.PhotoUrl, &user.Level, &user.XP, &user.League,
-		&user.Wins, &user.Losses, &user.IsPremium, &user.CreatedAt,
-	)
+	`, uid)
+
+	user, err := helpers.ScanUser(row)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		helpers.RespondError(c, http.StatusNotFound, helpers.ErrNotFound)
 		return
 	}
 

@@ -2,13 +2,14 @@ package main
 
 import (
 	"log"
+	"time"
+
+	"github.com/gin-gonic/gin"
 	"pixelmatch-server/config"
 	"pixelmatch-server/database"
 	"pixelmatch-server/handlers"
 	"pixelmatch-server/middleware"
 	"pixelmatch-server/websocket"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -24,13 +25,14 @@ func main() {
 	r.Static("/uploads", cfg.UploadDir)
 
 	authHandler := &handlers.AuthHandler{Cfg: cfg}
+	authRateLimit := middleware.RateLimit(10, 1*time.Minute)
 
 	api := r.Group("/api")
 	{
 		auth := api.Group("/auth")
 		{
-			auth.POST("/register", authHandler.Register)
-			auth.POST("/login", authHandler.Login)
+			auth.POST("/register", authRateLimit, authHandler.Register)
+			auth.POST("/login", authRateLimit, authHandler.Login)
 		}
 
 		protected := api.Group("")
@@ -62,8 +64,9 @@ func main() {
 		}
 	}
 
-	// WebSocket route — no auth middleware (auth via message)
+	// WebSocket routes — no auth middleware (auth via message)
 	r.GET("/ws/battle", websocket.HandleBattleWS)
+	r.GET("/ws/chat/:chatId", websocket.HandleChatWS)
 
 	log.Printf("PixelMatch server starting on :%s", cfg.ServerPort)
 	r.Run(":" + cfg.ServerPort)

@@ -1,7 +1,9 @@
+import 'environment.dart';
+
 class AppConstants {
-  // Server — change this to your server's IP
-  static const String apiBaseUrl = 'http://YOUR_SERVER_IP:8080';
-  static const String wsBaseUrl = 'ws://YOUR_SERVER_IP:8080';
+  // Server — configured via --dart-define at build time
+  static String get apiBaseUrl => Environment.apiHost;
+  static String get wsBaseUrl => Environment.wsHost;
 
   // XP
   static const int xpPerWin = 50;

@@ -90,6 +90,16 @@ class _BattleScreenState extends State<BattleScreen> {
         SafeArea(child: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.of(context).pop())),
+        Positioned(
+          bottom: 48,
+          right: 16,
+          child: FloatingActionButton(
+            mini: true,
+            backgroundColor: AppTheme.accentGold,
+            onPressed: () => _game.castSpell(),
+            child: const Icon(Icons.auto_fix_high, size: 20),
+          ),
+        ),
         if (_playerWon != null && !_showLevelUp)
           Container(
             color: Colors.black54,

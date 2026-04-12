@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"pixelmatch-server/config"
 	"pixelmatch-server/database"
+	"pixelmatch-server/helpers"
 	"pixelmatch-server/models"
 )
 
@@ -17,21 +19,28 @@ type UserHandler struct {
 	Cfg *config.Config
 }
 
+// Max upload size: 5 MB
+const maxUploadSize = 5 << 20
+
+// Allowed MIME types for photo upload
+var allowedMIME = map[string]bool{
+	"image/jpeg": true,
+	"image/png":  true,
+	"image/webp": true,
+}
+
 func (h *UserHandler) GetUser(c *gin.Context) {
 	uid := c.Param("uid")
 
-	var user models.User
-	err := database.DB.QueryRow(`
+	row := database.DB.QueryRow(`
 		SELECT uid, email, display_name, character_class, photo_url,
 		       level, xp, league, wins, losses, is_premium, created_at
 		FROM users WHERE uid = $1
-	`, uid).Scan(
-		&user.UID, &user.Email, &user.DisplayName, &user.CharacterClass,
-		&user.PhotoUrl, &user.Level, &user.XP, &user.League,
-		&user.Wins, &user.Losses, &user.IsPremium, &user.CreatedAt,
-	)
+	`, uid)
+
+	user, err := helpers.ScanUser(row)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		helpers.RespondError(c, http.StatusNotFound, helpers.ErrNotFound)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"user": user})
@@ -44,22 +53,19 @@ func (h *UserHandler) UpdateProfile(c *gin.Context) {
 		DisplayName string `json:"displayName"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helpers.RespondError(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	var user models.User
-	err := database.DB.QueryRow(`
+	row := database.DB.QueryRow(`
 		UPDATE users SET display_name = $1 WHERE uid = $2
 		RETURNING uid, email, display_name, character_class, photo_url,
 		          level, xp, league, wins, losses, is_premium, created_at
-	`, req.DisplayName, uid).Scan(
-		&user.UID, &user.Email, &user.DisplayName, &user.CharacterClass,
-		&user.PhotoUrl, &user.Level, &user.XP, &user.League,
-		&user.Wins, &user.Losses, &user.IsPremium, &user.CreatedAt,
-	)
+	`, req.DisplayName, uid)
+
+	user, err := helpers.ScanUser(row)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrUpdateFailed)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"user": user})
@@ -70,45 +76,51 @@ func (h *UserHandler) UploadPhoto(c *gin.Context) {
 
 	file, err := c.FormFile("photo")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "no file uploaded"})
+		helpers.RespondError(c, http.StatusBadRequest, "no file uploaded")
 		return
 	}
 
-	// Create uploads dir if not exists
+	// Validate file size
+	if file.Size > maxUploadSize {
+		helpers.RespondError(c, http.StatusBadRequest, "file too large (max 5 MB)")
+		return
+	}
+
+	// Validate MIME type
+	mime := file.Header.Get("Content-Type")
+	if !allowedMIME[strings.ToLower(mime)] {
+		helpers.RespondError(c, http.StatusBadRequest, "unsupported file type (jpeg, png, webp only)")
+		return
+	}
+
 	os.MkdirAll(h.Cfg.UploadDir, 0755)
 
-	// Save with unique name
 	ext := filepath.Ext(file.Filename)
 	filename := fmt.Sprintf("%s_%s%s", uid, uuid.New().String()[:8], ext)
 	savePath := filepath.Join(h.Cfg.UploadDir, filename)
 
 	if err := c.SaveUploadedFile(file, savePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save file"})
+		helpers.RespondError(c, http.StatusInternalServerError, "failed to save file")
 		return
 	}
 
 	photoUrl := fmt.Sprintf("/uploads/%s", filename)
 
-	// Update database
-	var user models.User
-	err = database.DB.QueryRow(`
+	row := database.DB.QueryRow(`
 		UPDATE users SET photo_url = $1 WHERE uid = $2
 		RETURNING uid, email, display_name, character_class, photo_url,
 		          level, xp, league, wins, losses, is_premium, created_at
-	`, photoUrl, uid).Scan(
-		&user.UID, &user.Email, &user.DisplayName, &user.CharacterClass,
-		&user.PhotoUrl, &user.Level, &user.XP, &user.League,
-		&user.Wins, &user.Losses, &user.IsPremium, &user.CreatedAt,
-	)
+	`, photoUrl, uid)
+
+	user, err := helpers.ScanUser(row)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "db update failed"})
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrUpdateFailed)
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
 
-// Fetch users at the caller's level or below, excluding the caller.
 func (h *UserHandler) GetEligibleProfiles(c *gin.Context) {
 	uid := c.GetString("uid")
 
@@ -123,18 +135,18 @@ func (h *UserHandler) GetEligibleProfiles(c *gin.Context) {
 		LIMIT 50
 	`, uid)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrQueryFailed)
 		return
 	}
 	defer rows.Close()
 
 	users := []models.User{}
 	for rows.Next() {
-		var u models.User
-		rows.Scan(&u.UID, &u.Email, &u.DisplayName, &u.CharacterClass,
-			&u.PhotoUrl, &u.Level, &u.XP, &u.League,
-			&u.Wins, &u.Losses, &u.IsPremium, &u.CreatedAt)
-		users = append(users, u)
+		user, err := helpers.ScanUser(rows)
+		if err != nil {
+			continue
+		}
+		users = append(users, user)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"users": users})
