@@ -9,11 +9,11 @@ class ClassSelectionScreen extends StatelessWidget {
   const ClassSelectionScreen({super.key});
 
   static const Map<String, Map<String, String>> classInfo = {
-    'Warrior': {'style': 'Tank, defensive', 'hint': 'Strong, protective, reliable', 'icon': '🛡️'},
-    'Mage': {'style': 'Spells, clever combos', 'hint': 'Intellectual, creative, strategic', 'icon': '🔮'},
-    'Archer': {'style': 'Fast, hit-and-run', 'hint': 'Adventurous, free-spirited', 'icon': '🏹'},
-    'Rogue': {'style': 'Tricks, sneaky plays', 'hint': 'Mysterious, spontaneous', 'icon': '🗡️'},
-    'Healer': {'style': 'Support, team-focused', 'hint': 'Caring, empathetic, nurturing', 'icon': '💚'},
+    'Warrior': {'style': 'Tank, defensive',     'hint': 'Strong, protective, reliable',     'image': 'assets/images/class_warrior.png'},
+    'Mage':    {'style': 'Spells, clever combos','hint': 'Intellectual, creative, strategic','image': 'assets/images/class_mage.png'},
+    'Archer':  {'style': 'Fast, hit-and-run',   'hint': 'Adventurous, free-spirited',       'image': 'assets/images/class_archer.png'},
+    'Rogue':   {'style': 'Tricks, sneaky plays','hint': 'Mysterious, spontaneous',          'image': 'assets/images/class_rogue.png'},
+    'Healer':  {'style': 'Support, team-focused','hint': 'Caring, empathetic, nurturing',   'image': 'assets/images/class_healer.png'},
   };
 
   @override
@@ -58,7 +58,12 @@ class ClassSelectionScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              Text(info['icon']!, style: const TextStyle(fontSize: 32)),
+                              Image.asset(
+                                info['image']!,
+                                width: 64,
+                                height: 64,
+                                filterQuality: FilterQuality.none,
+                              ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Column(

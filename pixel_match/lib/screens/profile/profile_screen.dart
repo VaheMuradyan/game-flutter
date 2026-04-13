@@ -97,6 +97,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               onPressed: () => context.push('/battle-history/${user.uid}'),
             ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              icon: Icon(user.isPremium ? Icons.star : Icons.star_border),
+              label: Text(user.isPremium ? 'PREMIUM ACTIVE' : 'GO PREMIUM'),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppTheme.accentGold),
+                foregroundColor: AppTheme.accentGold,
+              ),
+              onPressed: () => context.push('/premium'),
+            ),
           ]),
         ),
       );

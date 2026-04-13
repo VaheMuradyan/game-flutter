@@ -2,20 +2,43 @@ import 'package:flame/components.dart';
 import 'dart:ui';
 import 'tower.dart';
 
-class Troop extends PositionComponent with HasGameReference {
+class Troop extends SpriteComponent with HasGameReference {
   final bool isPlayer;
   final Color color;
+  final String characterClass;
   final int damage;
   final double speed;
   Tower? targetTower;
   bool _reachedTarget = false;
 
-  Troop({required this.isPlayer, required this.color, this.damage = 50, this.speed = 60.0});
+  Troop({
+    required this.isPlayer,
+    required this.color,
+    this.characterClass = 'Warrior',
+    this.damage = 50,
+    this.speed = 60.0,
+  });
 
   @override
   Future<void> onLoad() async {
-    size = Vector2(20, 20);
+    final spriteName = isPlayer
+        ? 'sprites/troop_${characterClass.toLowerCase()}.png'
+        : 'sprites/troop_warrior.png';
+    try {
+      sprite = await Sprite.load(spriteName);
+    } catch (_) {
+      try {
+        sprite = await Sprite.load('sprites/troop_warrior.png');
+      } catch (_) {
+        sprite = null;
+      }
+    }
+    size = Vector2(24, 24);
     anchor = Anchor.center;
+
+    if (!isPlayer) {
+      flipVertically();
+    }
   }
 
   @override
@@ -33,9 +56,19 @@ class Troop extends PositionComponent with HasGameReference {
 
   @override
   void render(Canvas canvas) {
-    canvas.drawRect(Rect.fromLTWH(4, 8, 12, 12), Paint()..color = color);
-    canvas.drawCircle(const Offset(10, 6), 6, Paint()..color = color);
-    canvas.drawCircle(const Offset(8, 5), 1.5, Paint()..color = const Color(0xFFFFFFFF));
-    canvas.drawCircle(const Offset(12, 5), 1.5, Paint()..color = const Color(0xFFFFFFFF));
+    if (sprite != null) {
+      super.render(canvas);
+    } else {
+      // Fallback drawing
+      canvas.drawRect(
+        const Rect.fromLTWH(4, 8, 16, 14),
+        Paint()..color = color,
+      );
+      canvas.drawCircle(
+        const Offset(12, 6),
+        6,
+        Paint()..color = color,
+      );
+    }
   }
 }

@@ -115,8 +115,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.local_fire_department,
-                    size: 80, color: AppTheme.primaryColor),
+                Image.asset(
+                  'assets/images/logo.png',
+                  width: 128,
+                  height: 128,
+                  filterQuality: FilterQuality.none,
+                ),
                 const SizedBox(height: 16),
                 Text('PIXELMATCH',
                     style: Theme.of(context).textTheme.headlineLarge),

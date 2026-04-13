@@ -15,6 +15,7 @@ dependencies:
 
   # Game engine
   flame: ^1.14.0
+  flame_audio: ^2.1.0
 
   # Routing
   go_router: ^13.2.0

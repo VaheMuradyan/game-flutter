@@ -16,6 +16,7 @@ type User struct {
 	Losses         int       `json:"losses"`
 	IsPremium      bool      `json:"isPremium"`
 	CreatedAt      time.Time `json:"createdAt"`
+	FcmToken       string    `json:"-"` // never expose to client
 }
 
 type RegisterRequest struct {

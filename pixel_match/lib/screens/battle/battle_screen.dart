@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:provider/provider.dart';
 import '../../game/pixel_match_game.dart';
+import '../../game/battle_audio.dart';
 import '../../providers/battle_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
@@ -28,6 +29,7 @@ class _BattleScreenState extends State<BattleScreen> {
   @override
   void initState() {
     super.initState();
+    BattleAudio.battleStart();
     _game = PixelMatchGame(playerClass: widget.playerClass)
       ..onBattleEnd = (won) => _onBattleEnd(won);
 

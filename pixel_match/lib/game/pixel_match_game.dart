@@ -6,6 +6,7 @@ import 'components/tower.dart';
 import 'components/troop.dart';
 import 'components/spell.dart';
 import 'class_colors.dart';
+import 'battle_audio.dart';
 
 class PixelMatchGame extends FlameGame with TapCallbacks {
   final String playerClass;
@@ -32,6 +33,7 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
 
   @override
   Future<void> onLoad() async {
+    await BattleAudio.preload();
     add(Arena());
 
     final playerColor = ClassColors.forClass(playerClass);
@@ -59,9 +61,11 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
     }
 
     if (enemyTower.isDestroyed) {
+      BattleAudio.victory();
       onBattleEnd?.call(true);
       pauseEngine();
     } else if (playerTower.isDestroyed) {
+      BattleAudio.defeat();
       onBattleEnd?.call(false);
       pauseEngine();
     }
@@ -84,12 +88,17 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
       final x = event.localPosition.x;
       final y = size.y / 2 + 20;
       _spawnPlayerTroop(x, y);
+      BattleAudio.troopDeploy();
       if (isMultiplayer) onTroopDeployed?.call(x, y);
     }
   }
 
   void _spawnPlayerTroop(double x, double y) {
-    final troop = Troop(isPlayer: true, color: ClassColors.forClass(playerClass))
+    final troop = Troop(
+      isPlayer: true,
+      color: ClassColors.forClass(playerClass),
+      characterClass: playerClass,
+    )
       ..position = Vector2(x, y)
       ..targetTower = enemyTower;
     add(troop);
@@ -114,6 +123,7 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
   void castSpell() {
     if (mana >= spellCost) {
       mana -= spellCost;
+      BattleAudio.spellCast();
       final spell = Spell(
         target: enemyTower.position.clone(),
         color: ClassColors.forClass(playerClass),

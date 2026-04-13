@@ -1,7 +1,7 @@
 import 'package:flame/components.dart';
 import 'dart:ui';
 
-class Spell extends PositionComponent with HasGameReference {
+class Spell extends SpriteComponent with HasGameReference {
   final Vector2 target;
   final Color color;
   final int damage;
@@ -9,12 +9,22 @@ class Spell extends PositionComponent with HasGameReference {
   final void Function(Vector2 position, int damage) onImpact;
   bool _exploded = false;
 
-  Spell({required this.target, required this.color, this.damage = 100,
-      this.speed = 200.0, required this.onImpact});
+  Spell({
+    required this.target,
+    required this.color,
+    this.damage = 100,
+    this.speed = 200.0,
+    required this.onImpact,
+  });
 
   @override
   Future<void> onLoad() async {
-    size = Vector2(12, 12);
+    try {
+      sprite = await Sprite.load('sprites/spell_fireball.png');
+    } catch (_) {
+      sprite = null;
+    }
+    size = Vector2(16, 16);
     anchor = Anchor.center;
   }
 
@@ -33,8 +43,21 @@ class Spell extends PositionComponent with HasGameReference {
 
   @override
   void render(Canvas canvas) {
-    canvas.drawCircle(Offset(size.x / 2, size.y / 2), size.x / 2, Paint()..color = color);
-    canvas.drawCircle(Offset(size.x / 2, size.y / 2), size.x / 2 + 3,
-        Paint()..color = color.withValues(alpha: 0.3)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
+    if (sprite != null) {
+      super.render(canvas);
+    } else {
+      canvas.drawCircle(
+        Offset(size.x / 2, size.y / 2),
+        size.x / 2,
+        Paint()..color = color,
+      );
+    }
+    canvas.drawCircle(
+      Offset(size.x / 2, size.y / 2),
+      size.x / 2 + 4,
+      Paint()
+        ..color = color.withValues(alpha: 0.3)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+    );
   }
 }

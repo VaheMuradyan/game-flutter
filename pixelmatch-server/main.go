@@ -61,7 +61,24 @@ func main() {
 			protected.GET("/leaderboard", lbHandler.GetGlobalLeaderboard)
 			protected.GET("/leaderboard/:league", lbHandler.GetLeagueLeaderboard)
 			protected.GET("/battles/history", lbHandler.GetBattleHistory)
+
+			premiumHandler := &handlers.PremiumHandler{}
+			protected.GET("/premium/status", premiumHandler.GetPremiumStatus)
+			protected.POST("/premium/activate", premiumHandler.ActivatePremium)
+
+			notifHandler := &handlers.NotificationHandler{}
+			protected.POST("/notifications/register", notifHandler.RegisterToken)
 		}
+	}
+
+	// Admin routes — separate static-key auth, NOT user JWT.
+	admin := r.Group("/admin")
+	admin.Use(middleware.AdminRequired(cfg))
+	{
+		adminHandler := &handlers.AdminHandler{}
+		admin.GET("/users", adminHandler.ListUsers)
+		admin.GET("/stats", adminHandler.GetStats)
+		admin.POST("/users/:uid/ban", adminHandler.BanUser)
 	}
 
 	// WebSocket routes — no auth middleware (auth via message)
