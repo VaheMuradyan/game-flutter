@@ -44,12 +44,19 @@ class MatchProvider extends ChangeNotifier {
 
   Future<bool> like(String theirUid) async {
     _remainingSwipes--;
-    final result = await _matchmakingService.recordLike(theirUid);
-    _lastSwipeWasMatch = result.isMatch;
-    _lastMatchChatId = result.chatId;
-    _currentIndex++;
     notifyListeners();
-    return result.isMatch;
+    try {
+      final result = await _matchmakingService.recordLike(theirUid);
+      _lastSwipeWasMatch = result.isMatch;
+      _lastMatchChatId = result.chatId;
+      _currentIndex++;
+      notifyListeners();
+      return result.isMatch;
+    } catch (e) {
+      _remainingSwipes++;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   void pass() {

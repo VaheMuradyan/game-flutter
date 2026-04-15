@@ -16,10 +16,7 @@ type Config struct {
 	ServerPort string
 	UploadDir  string
 	Env        string // "development", "staging", "production", "test"
-	adminKey   string
 }
-
-func (c *Config) AdminKey() string { return c.adminKey }
 
 func Load() *Config {
 	env := getEnv("APP_ENV", "development")
@@ -38,7 +35,6 @@ func Load() *Config {
 		ServerPort: getEnv("SERVER_PORT", "8080"),
 		UploadDir:  getEnv("UPLOAD_DIR", "./uploads"),
 		Env:        env,
-		adminKey:   getEnv("ADMIN_KEY", "dev_admin_key_change_me"),
 	}
 }
 

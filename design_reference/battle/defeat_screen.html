@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#111125",
+                    "surface-container-highest": "#333348",
+                    "on-tertiary-fixed-variant": "#554500",
+                    "on-background": "#e2e0fc",
+                    "on-error-container": "#ffdad6",
+                    "on-surface-variant": "#bcc9c7",
+                    "inverse-surface": "#e2e0fc",
+                    "tertiary": "#f9d438",
+                    "error-container": "#93000a",
+                    "on-tertiary-container": "#594900",
+                    "on-secondary-container": "#00302d",
+                    "surface": "#111125",
+                    "primary-container": "#ffa19e",
+                    "tertiary-fixed": "#ffe173",
+                    "surface-variant": "#333348",
+                    "on-primary-fixed-variant": "#8c1520",
+                    "on-secondary-fixed": "#00201e",
+                    "on-primary": "#68000f",
+                    "on-secondary-fixed-variant": "#00504c",
+                    "primary-fixed": "#ffdad8",
+                    "on-tertiary": "#3b2f00",
+                    "on-primary-container": "#911923",
+                    "surface-dim": "#111125",
+                    "outline-variant": "#3d4948",
+                    "inverse-primary": "#ae2f34",
+                    "secondary-fixed-dim": "#5dd9d0",
+                    "on-primary-fixed": "#410006",
+                    "on-tertiary-fixed": "#221b00",
+                    "secondary-container": "#00a29a",
+                    "primary": "#ffc9c6",
+                    "inverse-on-surface": "#2f2e43",
+                    "secondary": "#5dd9d0",
+                    "surface-bright": "#37374d",
+                    "on-secondary": "#003734",
+                    "surface-container-high": "#28283d",
+                    "error": "#ffb4ab",
+                    "on-error": "#690005",
+                    "surface-container": "#1e1e32",
+                    "outline": "#869391",
+                    "surface-container-lowest": "#0c0c1f",
+                    "primary-fixed-dim": "#ffb3b0",
+                    "surface-tint": "#ffb3b0",
+                    "tertiary-container": "#dbb815",
+                    "on-surface": "#e2e0fc",
+                    "surface-container-low": "#1a1a2e",
+                    "tertiary-fixed-dim": "#e8c426",
+                    "secondary-fixed": "#7cf6ec"
+            },
+            "borderRadius": {
+                    "none": "0px",
+                    "DEFAULT": "0px",
+                    "lg": "0px",
+                    "xl": "0px",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Space Grotesk"],
+                    "label": ["Space Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .pixel-crack {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 10h2v2h-2zm20 15h3v3h-3zm45 40h2v2h-2zm-60 20h4v4h-4z' fill='%230c0c1f' fill-opacity='0.2'/%3E%3C/svg%3E");
+            background-size: 8px 8px;
+        }
+        .segmented-border {
+            background: linear-gradient(90deg, transparent 50%, #0c0c1f 50%);
+            background-size: 10% 100%;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-low text-on-surface font-body selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation Bar -->
+<header class="w-full top-0 border-b-0 bg-[#0c0c1f] dark:bg-[#0c0c1f] flex justify-between items-center px-4 py-2 w-full shadow-[0px_4px_0px_0px_rgba(12,12,31,1)]">
+<div class="flex items-center gap-2 text-[#ffc9c6]">
+<span class="material-symbols-outlined" data-icon="skull">skull</span>
+</div>
+<h1 class="font-['Space_Grotesk'] uppercase tracking-widest font-bold text-2xl shadow-[4px_4px_0px_0px_rgba(12,12,31,1)] text-[#ffc9c6]">DEFEAT</h1>
+<div class="w-8"></div>
+</header>
+<main class="min-h-[calc(100vh-120px)] flex flex-col items-center justify-center p-4 space-y-8 pb-24">
+<!-- Defeat Header Section -->
+<section class="text-center space-y-2">
+<div class="flex items-center justify-center gap-4">
+<span class="material-symbols-outlined text-primary text-4xl transform -rotate-45" data-icon="swords">swords</span>
+<h2 class="text-6xl font-black italic text-primary uppercase pixel-crack tracking-tighter">DEFEAT</h2>
+<span class="material-symbols-outlined text-primary text-4xl transform rotate-45" data-icon="swords">swords</span>
+</div>
+<div class="flex items-center justify-center gap-1 text-on-surface">
+<span class="font-bold text-xl">-20 XP</span>
+<span class="material-symbols-outlined text-primary" data-icon="arrow_downward">arrow_downward</span>
+</div>
+</section>
+<!-- Central Progress Module -->
+<div class="relative flex flex-col items-center">
+<!-- Progress Ring Container -->
+<div class="w-64 h-64 rounded-full border-8 border-surface-container-highest flex items-center justify-center relative overflow-hidden bg-surface-container-lowest shadow-[8px_8px_0px_0px_rgba(12,12,31,1)]">
+<!-- GOLD LEAGUE Progress Simulation -->
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<circle class="opacity-80" cx="50%" cy="50%" fill="transparent" r="120" stroke="#f9d438" stroke-dasharray="754" stroke-dashoffset="300" stroke-linecap="butt" stroke-width="8"></circle>
+</svg>
+<div class="z-10 flex flex-col items-center space-y-1">
+<div class="w-24 h-24 bg-surface-container-highest flex items-center justify-center mb-2 shadow-[4px_4px_0px_0px_rgba(12,12,31,1)]">
+<img alt="Pixel art fantasy warrior portrait" class="w-20 h-20" data-alt="close-up pixel art illustration of a somber knight in heavy grey armor with a closed visor against a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWLGGaxzaWlh1yXeqH93Qr3Q1WaYTMhPxCSiDZzD0R6V27Jw8Rs7IWVlQ0Tf7xye9VIfXL9-cdBD9JM6BU0cx6p_qtBj5HgrMWvpY72zsh12ujJCzBkWmcPvFsMANQMPNfyV2MPeVRnop0gRa67_IgOrYB7uGAd--yjQftkbvbAM-1lLWJBeOYkpgRmNg93weeWku-kux22UYRGSvGtVfKbVkiH68mTsr_I5IO-TzY5Dq7sWJ3CyG45TlEv5e2LY_uvlDYRxNzLw"/>
+</div>
+<span class="text-tertiary font-bold text-lg leading-none">LVL 12</span>
+<span class="text-on-surface-variant font-black uppercase text-xs tracking-widest">GOLD LEAGUE</span>
+</div>
+</div>
+<!-- XP Label -->
+<div class="mt-4 bg-surface-container-lowest px-4 py-1 shadow-[4px_4px_0px_0px_rgba(12,12,31,1)]">
+<span class="text-tertiary font-bold font-['Space_Grotesk']">340/600 XP</span>
+</div>
+</div>
+<!-- Statistics Panel -->
+<section class="w-full max-w-sm bg-surface-container-highest p-6 shadow-[6px_6px_0px_0px_rgba(12,12,31,1)]">
+<div class="grid grid-cols-1 gap-4">
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant text-xs uppercase font-bold tracking-wider">Damage Dealt</span>
+<span class="text-secondary font-bold">820</span>
+</div>
+<div class="h-[2px] bg-surface-container-lowest"></div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant text-xs uppercase font-bold tracking-wider">Troops Deployed</span>
+<span class="text-secondary font-bold">15</span>
+</div>
+<div class="h-[2px] bg-surface-container-lowest"></div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant text-xs uppercase font-bold tracking-wider">Duration</span>
+<span class="text-secondary font-bold">2:47</span>
+</div>
+</div>
+</section>
+<!-- Action Buttons -->
+<section class="flex gap-4 w-full max-w-sm">
+<button class="flex-1 bg-secondary text-on-secondary font-black py-4 active:translate-x-[2px] active:translate-y-[2px] shadow-[4px_4px_0px_0px_rgba(12,12,31,1)] active:shadow-none transition-all uppercase tracking-widest">
+                REMATCH
+            </button>
+<button class="flex-1 bg-primary text-on-primary font-black py-4 active:translate-x-[2px] active:translate-y-[2px] shadow-[4px_4px_0px_0px_rgba(12,12,31,1)] active:shadow-none transition-all uppercase tracking-widest">
+                ARENA
+            </button>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 bg-[#0c0c1f] shadow-[0px_-4px_0px_0px_rgba(12,12,31,1)]">
+<a class="flex flex-col items-center justify-center text-[#5dd9d0] p-1 shadow-[4px_4px_0px_0px_rgba(12,12,31,1)] active:translate-x-[2px] active:translate-y-[2px] hover:bg-[#1a1a2e]" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold">HOME</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#ffc9c6] text-[#0c0c1f] p-1 translate-x-[2px] translate-y-[2px] shadow-none hover:bg-[#1a1a2e]" href="#">
+<span class="material-symbols-outlined" data-icon="videogame_asset">videogame_asset</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold">GAMES</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5dd9d0] p-1 shadow-[4px_4px_0px_0px_rgba(12,12,31,1)] active:translate-x-[2px] active:translate-y-[2px] hover:bg-[#1a1a2e]" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold">RANK</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#5dd9d0] p-1 shadow-[4px_4px_0px_0px_rgba(12,12,31,1)] active:translate-x-[2px] active:translate-y-[2px] hover:bg-[#1a1a2e]" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold">PROFILE</span>
+</a>
+</nav>
+</body></html>

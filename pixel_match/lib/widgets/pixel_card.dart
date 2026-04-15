@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:shimmer/shimmer.dart';
 import '../models/user_model.dart';
-import '../config/theme.dart';
+import '../theme/app_colors.dart';
 import '../utils/photo_url_helper.dart';
 import 'level_badge.dart';
 
@@ -14,55 +16,142 @@ class PixelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final url = PhotoUrlHelper.fullUrl(user.photoUrl);
-    return Card(
-      elevation: 4,
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border.all(color: AppColors.border, width: 2),
+        borderRadius: BorderRadius.zero,
+        boxShadow: [
+          const BoxShadow(
+            color: Colors.black,
+            offset: Offset(4, 4),
+            blurRadius: 0,
+          ),
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.15),
+            offset: const Offset(-2, -2),
+            blurRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            flex: 3,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-              child: url.isNotEmpty
-                  ? CachedNetworkImage(imageUrl: url, fit: BoxFit.cover,
-                      placeholder: (_, __) => Container(color: AppTheme.surfaceColor),
-                      errorWidget: (_, __, ___) => _placeholder())
-                  : _placeholder(),
+            flex: showStats ? 4 : 1,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                url.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: url,
+                        fit: BoxFit.cover,
+                        memCacheWidth: 600,
+                        memCacheHeight: 900,
+                        fadeInDuration: const Duration(milliseconds: 250),
+                        placeholder: (_, __) => _placeholderForUser(),
+                        errorWidget: (_, __, ___) => _fallback(),
+                      )
+                    : _fallback(),
+                // Bottom gradient scrim with name / class / level
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(12, 32, 12, 12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.85),
+                        ],
+                      ),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                user.displayName,
+                                style: textTheme.titleMedium,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${user.characterClass} · ${user.league}',
+                                style: textTheme.labelLarge,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        LevelBadge(
+                          level: user.level,
+                          league: user.league,
+                          size: 36,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          Expanded(
-            flex: showStats ? 2 : 1,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(children: [
-                    Expanded(child: Text(user.displayName,
-                        style: Theme.of(context).textTheme.bodyLarge, overflow: TextOverflow.ellipsis)),
-                    LevelBadge(level: user.level, league: user.league, size: 36),
-                  ]),
-                  const SizedBox(height: 4),
-                  Text('${user.characterClass} · ${user.league}',
-                      style: Theme.of(context).textTheme.bodyMedium),
-                  if (showStats) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      'W ${user.wins}  L ${user.losses}  '
-                      'WR ${user.wins + user.losses > 0 ? ((user.wins / (user.wins + user.losses)) * 100).toStringAsFixed(1) : 0}%',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  ],
-                ],
+          if (showStats)
+            Expanded(
+              flex: 1,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: const BoxDecoration(
+                  color: AppColors.surfaceAlt,
+                  border: Border(
+                    top: BorderSide(color: AppColors.border, width: 2),
+                  ),
+                ),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'W ${user.wins}  L ${user.losses}  '
+                    'WR ${user.wins + user.losses > 0 ? ((user.wins / (user.wins + user.losses)) * 100).toStringAsFixed(1) : 0}%',
+                    style: textTheme.labelMedium,
+                  ),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _placeholder() => Container(
-      color: AppTheme.surfaceColor,
-      child: const Center(child: Icon(Icons.person, size: 64, color: AppTheme.textSecondary)));
+  Widget _placeholderForUser() {
+    final hash = user.blurHash;
+    if (hash != null && hash.isNotEmpty) {
+      return BlurHash(hash: hash);
+    }
+    return _shimmer();
+  }
+
+  Widget _fallback() => Container(
+        color: AppColors.surface,
+        child: const Center(
+          child: Icon(Icons.person, size: 64, color: AppColors.textMuted),
+        ),
+      );
+
+  Widget _shimmer() => Shimmer.fromColors(
+        baseColor: AppColors.surface,
+        highlightColor: AppColors.surfaceAlt,
+        child: Container(color: AppColors.surface),
+      );
 }

@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'dart:ui';
 import 'tower.dart';
+import '../../config/constants.dart';
 
 class Troop extends SpriteComponent with HasGameReference {
   final bool isPlayer;
@@ -9,15 +10,25 @@ class Troop extends SpriteComponent with HasGameReference {
   final int damage;
   final double speed;
   Tower? targetTower;
+  void Function(Vector2 position, int damage)? onHit;
   bool _reachedTarget = false;
 
+  // Hoisted per-instance scratch buffers — previously `.normalized()` and
+  // subtraction allocated two Vector2s every update tick per troop.
+  final Vector2 _direction = Vector2.zero();
+  late final Paint _bodyPaint;
+
+  // Defaults mirror design_reference/balance_sheet.md §4/§5.
   Troop({
     required this.isPlayer,
     required this.color,
     this.characterClass = 'Warrior',
-    this.damage = 50,
-    this.speed = 60.0,
-  });
+    int? damage,
+    double? speed,
+  })  : damage = damage ?? AppConstants.troopBaseDamage,
+        speed = speed ?? AppConstants.troopSpeed {
+    _bodyPaint = Paint()..color = color;
+  }
 
   @override
   Future<void> onLoad() async {
@@ -45,13 +56,23 @@ class Troop extends SpriteComponent with HasGameReference {
   void update(double dt) {
     super.update(dt);
     if (_reachedTarget || targetTower == null) return;
-    final direction = (targetTower!.position - position).normalized();
-    position += direction * speed * dt;
-    if (position.distanceTo(targetTower!.position) < 32) {
+    final target = targetTower!.position;
+    _direction
+      ..setFrom(target)
+      ..sub(position);
+    final distSq = _direction.length2;
+    if (distSq < 32 * 32) {
       targetTower!.takeDamage(damage);
+      onHit?.call(target.clone(), damage);
       _reachedTarget = true;
       removeFromParent();
+      return;
     }
+    if (distSq > 0) {
+      _direction.scale(1.0 / _direction.length);
+    }
+    position.x += _direction.x * speed * dt;
+    position.y += _direction.y * speed * dt;
   }
 
   @override
@@ -59,16 +80,8 @@ class Troop extends SpriteComponent with HasGameReference {
     if (sprite != null) {
       super.render(canvas);
     } else {
-      // Fallback drawing
-      canvas.drawRect(
-        const Rect.fromLTWH(4, 8, 16, 14),
-        Paint()..color = color,
-      );
-      canvas.drawCircle(
-        const Offset(12, 6),
-        6,
-        Paint()..color = color,
-      );
+      canvas.drawRect(const Rect.fromLTWH(4, 8, 16, 14), _bodyPaint);
+      canvas.drawCircle(const Offset(12, 6), 6, _bodyPaint);
     }
   }
 }

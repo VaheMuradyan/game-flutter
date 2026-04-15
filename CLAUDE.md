@@ -48,9 +48,10 @@ flutter test test/widget_test.dart  # single test file
 
 2. **WebSocket** — `WebSocketService` (`pixel_match/lib/services/websocket_service.dart`) connects to `/ws/battle` on the Go server (`pixelmatch-server/websocket/battle_ws.go`). Auth is done via message payload, not HTTP middleware. Messages are JSON with a `type` field: `join_queue`, `battle_start`, `deploy_troop`, `tower_hit`, `battle_end`, `leave_queue`.
 
-3. **Shared constants** — XP values, league thresholds, battle duration, character classes, and swipe limits are defined in both codebases and must stay in sync:
+3. **Shared constants** — XP values, league thresholds, battle duration, character classes, and swipe limits are mirrored across three places that must stay in sync (any drift is a bug). Canonical source: `design_reference/balance_sheet.md`.
    - Flutter: `pixel_match/lib/config/constants.dart`
-   - Go: hardcoded in `websocket/battle_ws.go` (tower health 1000, duration 180s, XP +50/-20) and `handlers/` files
+   - Go: `pixelmatch-server/config/game_constants.go` (XPPerWin=75, XPPerLoss=-10, StartingTowerHealth=1200, BattleDurationSeconds=150, DailyFreeSwipes=25, `LeagueForLevel()`)
+   - Note: mana, troop cost, troop speed, and spell cost currently live only in the Flutter constants and have no server mirror yet.
 
 ## Configuration
 

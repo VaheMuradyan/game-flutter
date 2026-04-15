@@ -33,6 +33,7 @@ func main() {
 		{
 			auth.POST("/register", authRateLimit, authHandler.Register)
 			auth.POST("/login", authRateLimit, authHandler.Login)
+			auth.POST("/admin-login", authRateLimit, authHandler.AdminLogin)
 		}
 
 		protected := api.Group("")
@@ -69,16 +70,22 @@ func main() {
 			notifHandler := &handlers.NotificationHandler{}
 			protected.POST("/notifications/register", notifHandler.RegisterToken)
 		}
-	}
 
-	// Admin routes — separate static-key auth, NOT user JWT.
-	admin := r.Group("/admin")
-	admin.Use(middleware.AdminRequired(cfg))
-	{
-		adminHandler := &handlers.AdminHandler{}
-		admin.GET("/users", adminHandler.ListUsers)
-		admin.GET("/stats", adminHandler.GetStats)
-		admin.POST("/users/:uid/ban", adminHandler.BanUser)
+		// /api/admin/* — read-only panel backed by JWT + users.is_admin.
+		adminRateLimit := middleware.RateLimit(30, 1*time.Minute)
+		adminAPI := api.Group("/admin")
+		adminAPI.Use(middleware.AdminCORS())
+		adminAPI.Use(adminRateLimit)
+		adminAPI.Use(middleware.AdminJWTRequired(cfg))
+		adminAPI.Use(middleware.AdminAuditLog())
+		{
+			adminHandler := &handlers.AdminHandler{}
+			adminAPI.GET("/me", adminHandler.Me)
+			adminAPI.GET("/stats", adminHandler.GetStats)
+			adminAPI.GET("/users", adminHandler.ListUsers)
+			adminAPI.GET("/users/:uid", adminHandler.GetUser)
+			adminAPI.GET("/battles", adminHandler.ListBattles)
+		}
 	}
 
 	// WebSocket routes — no auth middleware (auth via message)

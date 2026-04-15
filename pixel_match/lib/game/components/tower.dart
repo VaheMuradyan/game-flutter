@@ -8,9 +8,14 @@ class Tower extends SpriteComponent with HasGameReference {
   final bool isPlayer;
   final Color color;
 
+  // Hoisted — previously allocated per frame in render().
+  late final Paint _bodyPaint;
+
   Tower({required this.isPlayer, required this.color,
       this.maxHealth = AppConstants.startingTowerHealth})
-      : health = AppConstants.startingTowerHealth;
+      : health = AppConstants.startingTowerHealth {
+    _bodyPaint = Paint()..color = color;
+  }
 
   @override
   Future<void> onLoad() async {
@@ -36,35 +41,12 @@ class Tower extends SpriteComponent with HasGameReference {
     if (sprite != null) {
       super.render(canvas);
     } else {
-      // Fallback drawing if sprite missing
       final bodyRect = Rect.fromLTWH(0, 12, size.x, size.y - 12);
-      canvas.drawRect(bodyRect, Paint()..color = color);
+      canvas.drawRect(bodyRect, _bodyPaint);
       const bw = 10.0;
       for (double x = 0; x < size.x; x += bw * 2) {
-        canvas.drawRect(Rect.fromLTWH(x, 4, bw, 10), Paint()..color = color);
+        canvas.drawRect(Rect.fromLTWH(x, 4, bw, 10), _bodyPaint);
       }
     }
-
-    // Health bar
-    const barWidth = 48.0;
-    const barHeight = 6.0;
-    const barX = 0.0;
-    final barY = isPlayer ? size.y + 4 : -barHeight - 4;
-
-    canvas.drawRect(
-      Rect.fromLTWH(barX, barY, barWidth, barHeight),
-      Paint()..color = const Color(0xFF333333),
-    );
-
-    final ratio = health / maxHealth;
-    final fillColor = ratio > 0.5
-        ? const Color(0xFF2ECC71)
-        : ratio > 0.25
-            ? const Color(0xFFF39C12)
-            : const Color(0xFFE74C3C);
-    canvas.drawRect(
-      Rect.fromLTWH(barX, barY, barWidth * ratio, barHeight),
-      Paint()..color = fillColor,
-    );
   }
 }

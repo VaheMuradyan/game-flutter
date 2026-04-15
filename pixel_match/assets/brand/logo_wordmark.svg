@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" shape-rendering="crispEdges">
+  <!-- PixelMatch wordmark.
+       "PIXEL" in warm coral + "MATCH" in cyan, separated by a small pixel
+       heart accent. A single-pixel navy drop-shadow on the text gives the
+       whole mark a slight 8-bit-sticker lift without leaving the grid.
+       Colors are kept in sync with lib/theme/app_colors.dart and gen_icon.py. -->
+  <rect width="720" height="180" fill="#0B0B1A"/>
+
+  <!-- Pixel heart accent — 16x16 grid at 5px per cell, centered. -->
+  <g transform="translate(330 50)">
+    <!-- shadow (2px down-right offset on the heart cells) -->
+    <g fill="#0B0B1A" transform="translate(3 3)">
+      <rect x="10" y="5"  width="15" height="5"/>
+      <rect x="40" y="5"  width="15" height="5"/>
+      <rect x="5"  y="10" width="25" height="5"/>
+      <rect x="35" y="10" width="25" height="5"/>
+      <rect x="0"  y="15" width="80" height="5"/>
+      <rect x="0"  y="20" width="80" height="5"/>
+      <rect x="0"  y="25" width="80" height="5"/>
+      <rect x="0"  y="30" width="80" height="5"/>
+      <rect x="5"  y="35" width="70" height="5"/>
+      <rect x="10" y="40" width="60" height="5"/>
+      <rect x="15" y="45" width="50" height="5"/>
+      <rect x="20" y="50" width="40" height="5"/>
+      <rect x="25" y="55" width="30" height="5"/>
+      <rect x="30" y="60" width="20" height="5"/>
+      <rect x="35" y="65" width="10" height="5"/>
+    </g>
+    <!-- heart body -->
+    <g fill="#FF6B6B">
+      <rect x="10" y="5"  width="15" height="5"/>
+      <rect x="40" y="5"  width="15" height="5"/>
+      <rect x="5"  y="10" width="25" height="5"/>
+      <rect x="35" y="10" width="25" height="5"/>
+      <rect x="0"  y="15" width="80" height="5"/>
+      <rect x="0"  y="20" width="80" height="5"/>
+      <rect x="0"  y="25" width="80" height="5"/>
+      <rect x="0"  y="30" width="80" height="5"/>
+      <rect x="5"  y="35" width="70" height="5"/>
+      <rect x="10" y="40" width="60" height="5"/>
+      <rect x="15" y="45" width="50" height="5"/>
+      <rect x="20" y="50" width="40" height="5"/>
+      <rect x="25" y="55" width="30" height="5"/>
+      <rect x="30" y="60" width="20" height="5"/>
+      <rect x="35" y="65" width="10" height="5"/>
+    </g>
+    <!-- highlight -->
+    <g fill="#FFC7C7">
+      <rect x="10" y="10" width="10" height="5"/>
+      <rect x="5"  y="15" width="10" height="5"/>
+      <rect x="5"  y="20" width="10" height="5"/>
+      <rect x="5"  y="25" width="5"  height="5"/>
+    </g>
+  </g>
+
+  <!-- Wordmark text. Press Start 2P with a 4px navy drop-shadow. -->
+  <g font-family="'Press Start 2P', 'Courier New', monospace" font-size="52" font-weight="700" letter-spacing="2">
+    <text x="44" y="120" fill="#0B0B1A">PIXEL</text>
+    <text x="40" y="116" fill="#FF6B6B">PIXEL</text>
+    <text x="424" y="120" fill="#0B0B1A">MATCH</text>
+    <text x="420" y="116" fill="#4ECDC4">MATCH</text>
+  </g>
+</svg>

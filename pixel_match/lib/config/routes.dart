@@ -17,6 +17,7 @@ import '../screens/battle/battle_screen.dart';
 import '../screens/match/match_celebration_screen.dart';
 import '../screens/leaderboard/leaderboard_screen.dart';
 import '../screens/premium/premium_screen.dart';
+import '../screens/settings/settings_screen.dart';
 
 CustomTransitionPage _pixelPage(Widget child, GoRouterState state) {
   return CustomTransitionPage(
@@ -63,6 +64,7 @@ final GoRouter appRouter = GoRouter(
         _pixelPage(ChatScreen(chatId: s.pathParameters['chatId']!), s)),
     GoRoute(path: '/leaderboard', pageBuilder: (_, s) => _pixelPage(const LeaderboardScreen(), s)),
     GoRoute(path: '/premium', pageBuilder: (_, s) => _pixelPage(const PremiumScreen(), s)),
+    GoRoute(path: '/settings', pageBuilder: (_, s) => _pixelPage(const SettingsScreen(), s)),
     GoRoute(path: '/battle-history/:uid', pageBuilder: (_, s) =>
         _pixelPage(BattleHistoryScreen(uid: s.pathParameters['uid']!), s)),
     GoRoute(path: '/match-celebration', pageBuilder: (_, s) {

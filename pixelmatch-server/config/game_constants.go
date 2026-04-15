@@ -1,28 +1,38 @@
 package config
 
-// Game balance — keep in sync with Flutter constants.dart
+// Game balance — canonical source is design_reference/balance_sheet.md.
+// Flutter mirrors live in pixel_match/lib/config/constants.dart.
+// Any drift between these three is a bug.
 const (
-	XPPerWin  = 50
-	XPPerLoss = -20
+	// XP — balance_sheet.md §1
+	XPPerWin  = 75
+	XPPerLoss = -10
 	MinXP     = 0
 
-	StartingTowerHealth   = 1000
-	BattleDurationSeconds = 180
+	// Battle — balance_sheet.md §3
+	StartingTowerHealth   = 1200
+	BattleDurationSeconds = 150
 
-	DailyFreeSwipes   = 20
+	// Combat economy — balance_sheet.md §4
+	TroopBaseDamage = 50
+	SpellDamage     = 80
+
+	// Swipes — balance_sheet.md §6
+	DailyFreeSwipes   = 25
 	PremiumSwipeLimit = 999999
 )
 
 // LeagueForLevel maps a player level to their league name.
+// Thresholds from balance_sheet.md §2.
 func LeagueForLevel(level int) string {
 	switch {
-	case level >= 100:
+	case level >= 41:
 		return "Legend"
-	case level >= 61:
+	case level >= 23:
 		return "Diamond"
-	case level >= 31:
+	case level >= 13:
 		return "Gold"
-	case level >= 11:
+	case level >= 6:
 		return "Silver"
 	default:
 		return "Bronze"

@@ -107,6 +107,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               onPressed: () => context.push('/premium'),
             ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.settings),
+              label: const Text('SETTINGS'),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppTheme.accentGold),
+                foregroundColor: AppTheme.accentGold,
+              ),
+              onPressed: () => context.push('/settings'),
+            ),
           ]),
         ),
       );

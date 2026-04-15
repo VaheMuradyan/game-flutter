@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PIXELMATCH - Battle Arena</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pixel-border-2 {
+            box-shadow: 
+                0 -2px 0 0 #333348,
+                0 2px 0 0 #333348,
+                -2px 0 0 0 #333348,
+                2px 0 0 0 #333348;
+        }
+        .pixel-border-primary {
+            box-shadow: 
+                0 -2px 0 0 #ffdad8,
+                0 2px 0 0 #ffdad8,
+                -2px 0 0 0 #ffdad8,
+                2px 0 0 0 #ffdad8;
+        }
+        .steps-4 {
+            transition-timing-function: steps(4);
+        }
+        .glow-primary {
+            box-shadow: 0 0 12px 2px rgba(232, 196, 38, 0.4);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#e0bfbd",
+                        "primary-fixed": "#ffdad8",
+                        "background": "#111125",
+                        "on-error-container": "#ffdad6",
+                        "primary-container": "#ff6b6b",
+                        "on-primary": "#68000f",
+                        "surface-variant": "#333348",
+                        "on-primary-fixed-variant": "#8c1520",
+                        "outline-variant": "#584140",
+                        "surface-container": "#1e1e32",
+                        "tertiary-fixed": "#ffe173",
+                        "inverse-surface": "#e2e0fc",
+                        "secondary-fixed": "#7cf6ec",
+                        "inverse-on-surface": "#2f2e43",
+                        "on-surface": "#e2e0fc",
+                        "on-tertiary-fixed": "#221b00",
+                        "secondary": "#5dd9d0",
+                        "on-secondary-fixed": "#00201e",
+                        "on-tertiary": "#3b2f00",
+                        "surface-container-low": "#1a1a2e",
+                        "tertiary-container": "#caa800",
+                        "on-primary-fixed": "#410006",
+                        "surface": "#111125",
+                        "surface-bright": "#37374d",
+                        "error": "#ffb4ab",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#e8c426",
+                        "on-secondary": "#003734",
+                        "on-secondary-fixed-variant": "#00504c",
+                        "on-tertiary-fixed-variant": "#554500",
+                        "surface-dim": "#111125",
+                        "on-error": "#690005",
+                        "inverse-primary": "#ae2f34",
+                        "secondary-fixed-dim": "#5dd9d0",
+                        "on-secondary-container": "#00302d",
+                        "surface-container-highest": "#333348",
+                        "surface-container-high": "#28283d",
+                        "on-primary-container": "#6d0010",
+                        "outline": "#a78a88",
+                        "surface-tint": "#ffb3b0",
+                        "on-background": "#e2e0fc",
+                        "surface-container-lowest": "#0c0c1f",
+                        "tertiary": "#e8c426",
+                        "primary-fixed-dim": "#ffb3b0",
+                        "secondary-container": "#00a29a",
+                        "primary": "#ffb3b0",
+                        "on-tertiary-container": "#4c3e00"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Space Grotesk"],
+                        "label": ["Space Grotesk"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body overflow-hidden selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation Anchor (from JSON) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-16 bg-[#1a1a2e] border-b-4 border-[#333348] shadow-[0_4px_0_0_rgba(12,12,31,1)]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-container-highest border-2 border-outline-variant flex items-center justify-center overflow-hidden">
+<img alt="Enemy Boss Avatar" class="w-full h-full" data-alt="pixel art style portrait of a dark shadowy boss character with glowing red eyes and a metallic helmet" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-K23zGFr8qEjFef4pVwPusNZesbfHVeqHpWx5PxVNOlVhesTNcavT_Mrl1UJzVIN2aFEigIBzqOH3j9mJbGg8NmgOG3jWlR5KEMJLYdE770idFBOmiomlhyWDpfCmEEa4U7jmOmOD2fb2iYnlpIwLm3lVRySaFlQjQ8_aY9M55OsT_aTTGNzUDOdb80mOMuKXRyv7Dbf4aYUfIom2S5byNmhZSZnT48_SBdiEZ3RI4GYOqdkCFHt8LmFCsYXZSgNYobTEvuKirg"/>
+</div>
+<div class="flex flex-col">
+<span class="text-[#e8c426] font-black italic text-lg drop-shadow-[2px_2px_0px_rgba(12,12,31,1)]">PIXELMATCH</span>
+<span class="text-[10px] text-secondary font-bold uppercase tracking-widest">Rank: Silver</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-[#ffb3b0]">
+<span class="material-symbols-outlined text-xl">timer</span>
+<span class="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm">BATTLE ACTIVE</span>
+</div>
+</header>
+<main class="relative h-screen w-full pt-16 pb-20 flex flex-col bg-surface-container-low">
+<!-- Enemy Health Bar (Top HUD) -->
+<div class="w-full px-4 pt-4 z-10">
+<div class="max-w-md mx-auto">
+<div class="flex justify-between mb-1">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">ENEMY TOWER 720/1000 HP</span>
+<span class="material-symbols-outlined text-primary-container text-sm" data-icon="swords">swords</span>
+</div>
+<div class="h-6 bg-surface-container-lowest border-2 border-surface-container-highest flex p-0.5 gap-1">
+<div class="h-full bg-primary-container w-[72%]" style="box-shadow: inset 0 2px 0 rgba(255,255,255,0.2)"></div>
+<div class="h-full bg-surface-container w-[4%]"></div>
+<div class="h-full bg-surface-container w-[4%]"></div>
+<div class="h-full bg-surface-container w-[4%]"></div>
+<div class="h-full bg-surface-container w-[4%]"></div>
+<div class="h-full bg-surface-container w-[4%]"></div>
+<div class="h-full bg-surface-container w-[8%]"></div>
+</div>
+</div>
+</div>
+<!-- Match Timer -->
+<div class="text-center my-4 z-10">
+<p class="text-[10px] font-bold text-tertiary-fixed-dim uppercase tracking-[0.2em] mb-1">TIME LEFT</p>
+<h2 class="text-4xl font-black text-tertiary italic drop-shadow-[4px_4px_0px_rgba(12,12,31,1)]">02:47</h2>
+</div>
+<!-- Arena (Isometric Canvas) -->
+<div class="flex-grow relative overflow-hidden mx-4 my-2 border-x-4 border-surface-container-highest bg-[#111125]">
+<!-- Grid Background Overlay -->
+<div class="absolute inset-0 opacity-10" data-alt="a subtle dark grid overlay representing a tactical battle map in a pixel art game" style="background-image: linear-gradient(#584140 1px, transparent 1px), linear-gradient(90deg, #584140 1px, transparent 1px); background-size: 32px 32px;"></div>
+<!-- Battle Scene -->
+<div class="absolute inset-0 flex flex-col items-center justify-between py-12">
+<!-- Enemy Tower -->
+<div class="relative group cursor-pointer transition-transform active:scale-95 duration-75">
+<div class="w-16 h-16 bg-primary-container border-4 border-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-4xl">castle</span>
+</div>
+<div class="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-2 bg-primary-container animate-pulse"></div>
+</div>
+<!-- Mid-Lane Skirmish -->
+<div class="relative w-full h-32 flex justify-center items-center">
+<!-- Unit A (Friendly) -->
+<div class="absolute left-1/3 bottom-4 flex flex-col items-center gap-1">
+<div class="w-8 h-8 bg-secondary border-2 border-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container text-sm">shield</span>
+</div>
+<div class="w-10 h-1 bg-secondary"></div>
+</div>
+<!-- Unit B (Enemy) -->
+<div class="absolute right-1/3 top-4 flex flex-col items-center gap-1">
+<div class="w-8 h-8 bg-primary border-2 border-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-sm">swords</span>
+</div>
+<div class="w-10 h-1 bg-primary"></div>
+</div>
+</div>
+<!-- Player Tower -->
+<div class="relative group cursor-pointer transition-transform active:scale-95 duration-75">
+<div class="w-20 h-20 bg-secondary border-4 border-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container text-5xl">castle</span>
+</div>
+<div class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-10 h-2 bg-secondary shadow-[0_4px_12px_rgba(93,217,208,0.4)]"></div>
+</div>
+</div>
+</div>
+<!-- HUD Controls -->
+<div class="z-20 px-4 pb-4">
+<!-- Troop Deck -->
+<div class="grid grid-cols-4 gap-3 max-w-lg mx-auto mb-6">
+<!-- Warrior Card (Ready) -->
+<div class="bg-[#1a1a2e] border-2 border-tertiary glow-primary p-2 flex flex-col items-center gap-2 active:translate-y-1 transition-all">
+<span class="text-[10px] font-bold text-tertiary-fixed uppercase">Warrior</span>
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container text-3xl">swords</span>
+</div>
+<span class="bg-tertiary text-on-tertiary-fixed font-black text-xs px-2 py-0.5">3 MP</span>
+</div>
+<!-- Mage Card (Ready) -->
+<div class="bg-[#1a1a2e] border-2 border-tertiary glow-primary p-2 flex flex-col items-center gap-2 active:translate-y-1 transition-all">
+<span class="text-[10px] font-bold text-tertiary-fixed uppercase">Mage</span>
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-3xl">magic_button</span>
+</div>
+<span class="bg-tertiary text-on-tertiary-fixed font-black text-xs px-2 py-0.5">3 MP</span>
+</div>
+<!-- Archer Card (Cooldown) -->
+<div class="bg-[#1a1a2e] opacity-50 grayscale border-2 border-outline-variant p-2 flex flex-col items-center gap-2">
+<span class="text-[10px] font-bold text-outline uppercase">Archer</span>
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-outline text-3xl">target</span>
+</div>
+<span class="bg-surface-variant text-on-surface-variant font-black text-xs px-2 py-0.5">3 MP</span>
+</div>
+<!-- Rogue Card (Cooldown) -->
+<div class="bg-[#1a1a2e] opacity-50 grayscale border-2 border-outline-variant p-2 flex flex-col items-center gap-2">
+<span class="text-[10px] font-bold text-outline uppercase">Rogue</span>
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-outline text-3xl">person</span>
+</div>
+<span class="bg-surface-variant text-on-surface-variant font-black text-xs px-2 py-0.5">3 MP</span>
+</div>
+</div>
+<!-- Mana Gauge -->
+<div class="max-w-md mx-auto mb-4">
+<div class="flex justify-between mb-1">
+<span class="text-xs font-bold text-secondary uppercase tracking-widest">MANA 7/10</span>
+</div>
+<div class="h-4 bg-surface-container-lowest border-2 border-surface-container-highest flex p-0.5 gap-0.5">
+<div class="flex-1 bg-secondary h-full"></div>
+<div class="flex-1 bg-secondary h-full"></div>
+<div class="flex-1 bg-secondary h-full"></div>
+<div class="flex-1 bg-secondary h-full"></div>
+<div class="flex-1 bg-secondary h-full"></div>
+<div class="flex-1 bg-secondary h-full"></div>
+<div class="flex-1 bg-secondary h-full"></div>
+<div class="flex-1 bg-surface-container h-full"></div>
+<div class="flex-1 bg-surface-container h-full"></div>
+<div class="flex-1 bg-surface-container h-full"></div>
+</div>
+</div>
+<!-- Player Health Bar (Bottom HUD) -->
+<div class="max-w-md mx-auto flex items-center gap-4">
+<div class="flex-grow">
+<div class="flex justify-between mb-1">
+<span class="text-xs font-bold text-secondary uppercase tracking-tighter">YOUR TOWER 850/1000 HP</span>
+</div>
+<div class="h-6 bg-surface-container-lowest border-2 border-surface-container-highest flex p-0.5 gap-1">
+<div class="h-full bg-secondary w-[85%]" style="box-shadow: inset 0 2px 0 rgba(255,255,255,0.3)"></div>
+<div class="h-full bg-surface-container w-[5%]"></div>
+<div class="h-full bg-surface-container w-[5%]"></div>
+<div class="h-full bg-surface-container w-[5%]"></div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="w-10 h-10 bg-secondary-container border-2 border-secondary flex items-center justify-center overflow-hidden">
+<img alt="Player Avatar" class="w-full h-full" data-alt="pixel art style portrait of a brave knight hero with a shining silver helmet and blue eyes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBz5xm582RbjN4guvjwck5YS4QaeQsd4FWEwB_s8BGlIVGkvjTc2viKna2-KM8yZkD0ADTXDobNavnmDTGiN9yaF92StrJMRa11DPHculV3S3W4jR4nrVgyRXbpk3ciKjfPxvRTjTEnsAJXuUW6wmw_rFAfMtm9GMozCRs2xhyFaRUrk3l_UN4PncmQJmlplW3mQ27sXL09d9a8TjUKXYagBidBK7rnFyjhGbmOIlEN_YWEQxXoxEyOrqLtOx0IEPhU64-9w6IHiw"/>
+</div>
+<span class="material-symbols-outlined text-tertiary text-lg" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell (from JSON) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 pb-2 h-20 bg-[#1a1a2e] border-t-4 border-[#333348] shadow-[0_-4px_0_0_rgba(12,12,31,1)]">
+<!-- Active Tab: Battle (using Swords icon) -->
+<button class="w-16 h-16 flex flex-col items-center justify-center bg-[#ff6b6b] text-[#1a1a2e] border-2 border-[#ffdad8] shadow-[0_4px_0_0_rgba(12,12,31,1)] active:translate-y-1 active:shadow-none duration-75">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">swords</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold">Arena</span>
+</button>
+<!-- Inactive Tabs -->
+<button class="w-16 h-16 flex flex-col items-center justify-center text-[#5dd9d0] opacity-80 hover:scale-105 active:translate-y-1 duration-0">
+<span class="material-symbols-outlined">shield</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold">Vault</span>
+</button>
+<button class="w-16 h-16 flex flex-col items-center justify-center text-[#5dd9d0] opacity-80 hover:scale-105 active:translate-y-1 duration-0">
+<span class="material-symbols-outlined">magic_button</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold">Magic</span>
+</button>
+<button class="w-16 h-16 flex flex-col items-center justify-center text-[#5dd9d0] opacity-80 hover:scale-105 active:translate-y-1 duration-0">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold">Profile</span>
+</button>
+</nav>
+</body></html>

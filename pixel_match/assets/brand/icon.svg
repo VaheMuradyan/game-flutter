@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" shape-rendering="crispEdges">
+  <!-- PixelMatch app icon. 1024x1024 master. A brand-pink pixel heart on
+       the dark navy brand surface, framed by a subtle cyan border ring to
+       echo the battle half of the product. -->
+  <rect width="1024" height="1024" fill="#0B0B1A"/>
+
+  <!-- Rounded-square safe frame (iOS will mask, Android uses adaptive) -->
+  <rect x="48" y="48" width="928" height="928" rx="184" ry="184"
+        fill="#16162A" stroke="#4ECDC4" stroke-width="12"/>
+
+  <!-- Pixel heart: 16x16 grid, cell = 48px, starting at (128, 176) -->
+  <g fill="#FF5C8A" transform="translate(128 176)">
+    <!-- row 1: cols 2-3 and 6-7 -->
+    <rect x="96"  y="48"  width="192" height="48"/>
+    <rect x="480" y="48"  width="192" height="48"/>
+    <!-- row 2: cols 1-4 and 5-8 (with gap at 4) -->
+    <rect x="48"  y="96"  width="672" height="48"/>
+    <!-- row 3: cols 0-9 full -->
+    <rect x="0"   y="144" width="768" height="48"/>
+    <!-- row 4: cols 0-9 full -->
+    <rect x="0"   y="192" width="768" height="48"/>
+    <!-- row 5: cols 0-9 full -->
+    <rect x="0"   y="240" width="768" height="48"/>
+    <!-- row 6: cols 1-8 -->
+    <rect x="48"  y="288" width="672" height="48"/>
+    <!-- row 7: cols 2-7 -->
+    <rect x="96"  y="336" width="576" height="48"/>
+    <!-- row 8: cols 3-6 -->
+    <rect x="144" y="384" width="480" height="48"/>
+    <!-- row 9: cols 4-5 -->
+    <rect x="192" y="432" width="384" height="48"/>
+    <!-- row 10 -->
+    <rect x="240" y="480" width="288" height="48"/>
+    <!-- row 11 -->
+    <rect x="288" y="528" width="192" height="48"/>
+    <!-- row 12 -->
+    <rect x="336" y="576" width="96"  height="48"/>
+  </g>
+</svg>

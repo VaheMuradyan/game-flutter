@@ -43,7 +43,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	token, err := middleware.GenerateToken(user.UID, h.Cfg.JWTSecret)
+	token, err := middleware.GenerateToken(user.UID, h.Cfg.JWTSecret, false)
 	if err != nil {
 		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrInternal)
 		return
@@ -80,7 +80,54 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := middleware.GenerateToken(user.UID, h.Cfg.JWTSecret)
+	token, err := middleware.GenerateToken(user.UID, h.Cfg.JWTSecret, false)
+	if err != nil {
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrInternal)
+		return
+	}
+
+	c.JSON(http.StatusOK, models.AuthResponse{Token: token, User: user})
+}
+
+func (h *AuthHandler) AdminLogin(c *gin.Context) {
+	var req models.LoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		helpers.RespondError(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	row := database.DB.QueryRow(`
+		SELECT uid, email, password_hash, display_name, character_class, photo_url,
+		       level, xp, league, wins, losses, is_premium, created_at
+		FROM users WHERE email = $1
+	`, req.Email)
+
+	user, passwordHash, err := helpers.ScanUserWithPassword(row)
+	if err == sql.ErrNoRows {
+		helpers.RespondError(c, http.StatusUnauthorized, helpers.ErrUnauthorized)
+		return
+	}
+	if err != nil {
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrInternal)
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(req.Password)); err != nil {
+		helpers.RespondError(c, http.StatusUnauthorized, helpers.ErrUnauthorized)
+		return
+	}
+
+	var isAdmin bool
+	if err := database.DB.QueryRow(`SELECT is_admin FROM users WHERE uid = $1`, user.UID).Scan(&isAdmin); err != nil {
+		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrInternal)
+		return
+	}
+	if !isAdmin {
+		helpers.RespondError(c, http.StatusForbidden, "admin access required")
+		return
+	}
+
+	token, err := middleware.GenerateToken(user.UID, h.Cfg.JWTSecret, true)
 	if err != nil {
 		helpers.RespondError(c, http.StatusInternalServerError, helpers.ErrInternal)
 		return

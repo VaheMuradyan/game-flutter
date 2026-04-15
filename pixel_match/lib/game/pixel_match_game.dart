@@ -1,24 +1,48 @@
+import 'dart:math';
 import 'package:flame/game.dart';
 import 'package:flame/events.dart';
+import 'package:flame/components.dart';
+import 'package:flame/particles.dart';
+import 'package:flame/effects.dart';
+import 'package:flutter/animation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'components/arena.dart';
 import 'components/tower.dart';
 import 'components/troop.dart';
 import 'components/spell.dart';
 import 'class_colors.dart';
 import 'battle_audio.dart';
+import '../config/constants.dart';
+import '../services/audio_service.dart';
 
 class PixelMatchGame extends FlameGame with TapCallbacks {
   final String playerClass;
   late Tower playerTower;
   late Tower enemyTower;
-  double mana = 5.0;
-  static const double maxMana = 10.0;
-  static const double manaRegen = 1.0;
-  static const double troopCost = 3.0;
+  // Tunables live in AppConstants, mirrored from design_reference/balance_sheet.md.
+  double mana = AppConstants.startingMana;
   double _aiTimer = 0;
+  double _matchElapsed = 0;
+  bool _ended = false;
+  int _lastTickedSecond = -1;
 
-  // Multiplayer fields (used in Phase 5)
+  // Stats (for victory/defeat screen)
+  int damageDealt = 0;
+  int troopsDeployed = 0;
+
+  // HUD-observable state
+  final ValueNotifier<int> playerHealthNotifier =
+      ValueNotifier<int>(AppConstants.startingTowerHealth);
+  final ValueNotifier<int> enemyHealthNotifier =
+      ValueNotifier<int>(AppConstants.startingTowerHealth);
+  final ValueNotifier<double> manaNotifier =
+      ValueNotifier<double>(AppConstants.startingMana);
+  final ValueNotifier<int> timeRemainingNotifier =
+      ValueNotifier<int>(AppConstants.battleDurationSeconds);
+
+  // Multiplayer fields
   String? battleId;
   String? localUid;
   bool isMultiplayer = false;
@@ -27,7 +51,7 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
   void Function(bool playerWon)? onBattleEnd;
   void Function(int damage)? onSpellHit;
 
-  static const double spellCost = 5.0;
+  final Random _rng = Random();
 
   PixelMatchGame({required this.playerClass});
 
@@ -49,9 +73,33 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
-    mana = (mana + manaRegen * dt).clamp(0, maxMana);
+    if (_ended) return;
 
-    // AI only in single-player mode
+    mana = (mana + AppConstants.manaRegenPerSecond * dt)
+        .clamp(0, AppConstants.maxMana.toDouble());
+    manaNotifier.value = mana;
+
+    playerHealthNotifier.value = playerTower.health;
+    enemyHealthNotifier.value = enemyTower.health;
+
+    _matchElapsed += dt;
+    final remaining =
+        (AppConstants.battleDurationSeconds - _matchElapsed)
+            .clamp(0, AppConstants.battleDurationSeconds.toDouble())
+            .toInt();
+    timeRemainingNotifier.value = remaining;
+
+    if (remaining <= 5 && remaining > 0 && remaining != _lastTickedSecond) {
+      _lastTickedSecond = remaining;
+      AudioService.instance.countdownTick();
+    }
+
+    final maxHp = AppConstants.startingTowerHealth.toDouble();
+    AudioService.instance.escalateIfNeeded(
+      playerTower.health / maxHp,
+      enemyTower.health / maxHp,
+    );
+
     if (!isMultiplayer) {
       _aiTimer += dt;
       if (_aiTimer >= 3.0) {
@@ -61,15 +109,30 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
     }
 
     if (enemyTower.isDestroyed) {
-      BattleAudio.victory();
-      onBattleEnd?.call(true);
-      pauseEngine();
+      _finishMatch(true);
     } else if (playerTower.isDestroyed) {
-      BattleAudio.defeat();
-      onBattleEnd?.call(false);
-      pauseEngine();
+      _finishMatch(false);
+    } else if (remaining <= 0 && !isMultiplayer) {
+      _finishMatch(enemyTower.health < playerTower.health);
     }
   }
+
+  void _finishMatch(bool won) {
+    if (_ended) return;
+    _ended = true;
+    AudioService.instance.towerDestroyed();
+    if (won) {
+      BattleAudio.victory();
+    } else {
+      BattleAudio.defeat();
+    }
+    HapticFeedback.heavyImpact();
+    onBattleEnd?.call(won);
+    pauseEngine();
+  }
+
+  Duration get matchDuration =>
+      Duration(seconds: _matchElapsed.toInt());
 
   void _spawnEnemyTroop() {
     final troop = Troop(isPlayer: false, color: const Color(0xFFE74C3C))
@@ -77,20 +140,33 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
         enemyTower.position.x + ((_aiTimer * 37).toInt() % 60 - 30).toDouble(),
         enemyTower.position.y + 50,
       )
-      ..targetTower = playerTower;
+      ..targetTower = playerTower
+      ..onHit = (pos, dmg) => spawnTowerHit(pos, dmg, isPlayerTower: true);
     add(troop);
   }
 
   @override
   void onTapDown(TapDownEvent event) {
-    if (event.localPosition.y < size.y / 2 && mana >= troopCost) {
-      mana -= troopCost;
-      final x = event.localPosition.x;
-      final y = size.y / 2 + 20;
-      _spawnPlayerTroop(x, y);
-      BattleAudio.troopDeploy();
-      if (isMultiplayer) onTroopDeployed?.call(x, y);
+    if (event.localPosition.y < size.y / 2) {
+      _tryDeployAt(event.localPosition.x, size.y / 2 + 20);
     }
+  }
+
+  /// Deploy troop at a screen-local position (from drag-drop on troop card).
+  void deployTroopAt(double x, double y) {
+    if (y >= size.y / 2) return;
+    _tryDeployAt(x, size.y / 2 + 20);
+  }
+
+  void _tryDeployAt(double x, double y) {
+    if (_ended || mana < AppConstants.troopCost) return;
+    mana -= AppConstants.troopCost;
+    manaNotifier.value = mana;
+    troopsDeployed += 1;
+    _spawnPlayerTroop(x, y);
+    BattleAudio.troopDeploy();
+    HapticFeedback.mediumImpact();
+    if (isMultiplayer) onTroopDeployed?.call(x, y);
   }
 
   void _spawnPlayerTroop(double x, double y) {
@@ -100,15 +176,20 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
       characterClass: playerClass,
     )
       ..position = Vector2(x, y)
-      ..targetTower = enemyTower;
+      ..targetTower = enemyTower
+      ..onHit = (pos, dmg) {
+        damageDealt += dmg;
+        spawnTowerHit(pos, dmg, isPlayerTower: false);
+        if (isMultiplayer) onTowerHit?.call(dmg);
+      };
     add(troop);
   }
 
-  /// Called when server relays opponent troop (Phase 5).
   void spawnRemoteTroop(double x, double y) {
     final troop = Troop(isPlayer: false, color: const Color(0xFFE74C3C))
       ..position = Vector2(x, size.y / 2 - 20)
-      ..targetTower = playerTower;
+      ..targetTower = playerTower
+      ..onHit = (pos, dmg) => spawnTowerHit(pos, dmg, isPlayerTower: true);
     add(troop);
   }
 
@@ -120,43 +201,82 @@ class PixelMatchGame extends FlameGame with TapCallbacks {
     }
   }
 
-  void castSpell() {
-    if (mana >= spellCost) {
-      mana -= spellCost;
-      BattleAudio.spellCast();
-      final spell = Spell(
-        target: enemyTower.position.clone(),
-        color: ClassColors.forClass(playerClass),
-        damage: 100,
-        onImpact: (position, damage) {
-          enemyTower.health -= damage;
-          if (enemyTower.health < 0) enemyTower.health = 0;
-          onSpellHit?.call(damage);
-          if (enemyTower.isDestroyed) {
-            onBattleEnd?.call(true);
-            pauseEngine();
-          }
+  void spawnTowerHit(Vector2 position, int damage,
+      {required bool isPlayerTower}) {
+    HapticFeedback.lightImpact();
+    AudioService.instance.towerHit();
+
+    add(ParticleSystemComponent(
+      position: position.clone(),
+      particle: Particle.generate(
+        count: 14,
+        lifespan: 0.55,
+        generator: (i) {
+          final angle = _rng.nextDouble() * 2 * pi;
+          final speed = 40 + _rng.nextDouble() * 90;
+          return AcceleratedParticle(
+            acceleration: Vector2(0, 120),
+            speed: Vector2(cos(angle) * speed, sin(angle) * speed - 30),
+            child: CircleParticle(
+              radius: 1.8 + _rng.nextDouble() * 1.6,
+              paint: Paint()
+                ..color = const Color(0xFFFFD93D),
+            ),
+          );
         },
-      )..position = playerTower.position.clone();
-      add(spell);
-    }
+      ),
+    ));
+
+    final txt = TextComponent(
+      text: '-$damage',
+      position: position.clone() + Vector2(0, -24),
+      anchor: Anchor.center,
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Color(0xFFFFFFFF),
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(color: Color(0xFFE74C3C), blurRadius: 4),
+          ],
+        ),
+      ),
+    );
+    txt.add(MoveEffect.by(
+      Vector2(0, -40),
+      EffectController(duration: 0.8, curve: Curves.easeOut),
+    ));
+    txt.add(RemoveEffect(delay: 0.8));
+    add(txt);
+  }
+
+  void castSpell() {
+    if (_ended || mana < AppConstants.spellCost) return;
+    mana -= AppConstants.spellCost;
+    manaNotifier.value = mana;
+    BattleAudio.spellCast();
+    HapticFeedback.mediumImpact();
+    final spell = Spell(
+      target: enemyTower.position.clone(),
+      color: ClassColors.forClass(playerClass),
+      damage: AppConstants.spellDamage,
+      onImpact: (position, damage) {
+        enemyTower.health -= damage;
+        if (enemyTower.health < 0) enemyTower.health = 0;
+        damageDealt += damage;
+        spawnTowerHit(position, damage, isPlayerTower: false);
+        onSpellHit?.call(damage);
+      },
+    )..position = playerTower.position.clone();
+    add(spell);
   }
 
   @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-    final barWidth = size.x - 32;
-    const barHeight = 12.0;
-    final barY = size.y - 20;
-    canvas.drawRect(Rect.fromLTWH(16, barY, barWidth, barHeight),
-        Paint()..color = const Color(0xFF333333));
-    canvas.drawRect(Rect.fromLTWH(16, barY, barWidth * (mana / maxMana), barHeight),
-        Paint()..color = const Color(0xFF3498DB));
-    final tp = TextPainter(
-      text: TextSpan(text: 'MANA ${mana.toInt()}/${maxMana.toInt()}',
-          style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 10)),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tp.paint(canvas, Offset(16, barY - 14));
+  void onRemove() {
+    playerHealthNotifier.dispose();
+    enemyHealthNotifier.dispose();
+    manaNotifier.dispose();
+    timeRemainingNotifier.dispose();
+    super.onRemove();
   }
 }

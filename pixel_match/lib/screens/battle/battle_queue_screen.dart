@@ -28,26 +28,43 @@ class _BattleQueueScreenState extends State<BattleQueueScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BattleProvider>(builder: (context, bp, _) {
-      if (bp.state == BattleState.battleActive) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => context.go('/battle'));
-      }
-      return Scaffold(body: SafeArea(child: Center(child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(color: AppTheme.primaryColor),
-          const SizedBox(height: 24),
-          Text('SEARCHING FOR OPPONENT...', style: Theme.of(context).textTheme.bodyLarge),
-          const SizedBox(height: 32),
-          OutlinedButton(
-            onPressed: () { bp.cancelSearch(); context.pop(); },
-            style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppTheme.primaryColor),
-                foregroundColor: AppTheme.primaryColor),
-            child: const Text('CANCEL'),
+    // Only rebuild when the battle state itself changes, not on every notify.
+    return Selector<BattleProvider, BattleState>(
+      selector: (_, bp) => bp.state,
+      builder: (context, state, _) {
+        if (state == BattleState.battleActive) {
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => context.go('/battle'));
+        }
+        return Scaffold(
+          body: SafeArea(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(color: AppTheme.primaryColor),
+                  const SizedBox(height: 24),
+                  Text('SEARCHING FOR OPPONENT...',
+                      style: Theme.of(context).textTheme.bodyLarge),
+                  const SizedBox(height: 32),
+                  OutlinedButton(
+                    onPressed: () {
+                      final bp = Provider.of<BattleProvider>(context,
+                          listen: false);
+                      bp.cancelSearch();
+                      context.pop();
+                    },
+                    style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppTheme.primaryColor),
+                        foregroundColor: AppTheme.primaryColor),
+                    child: const Text('CANCEL'),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
-      ))));
-    });
+        );
+      },
+    );
   }
 }

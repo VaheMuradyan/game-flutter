@@ -9,13 +9,23 @@ class Spell extends SpriteComponent with HasGameReference {
   final void Function(Vector2 position, int damage) onImpact;
   bool _exploded = false;
 
+  // Hoisted — previously allocated per frame / per update tick.
+  final Vector2 _direction = Vector2.zero();
+  late final Paint _corePaint;
+  late final Paint _glowPaint;
+
   Spell({
     required this.target,
     required this.color,
     this.damage = 100,
     this.speed = 200.0,
     required this.onImpact,
-  });
+  }) {
+    _corePaint = Paint()..color = color;
+    _glowPaint = Paint()
+      ..color = color.withValues(alpha: 0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+  }
 
   @override
   Future<void> onLoad() async {
@@ -32,13 +42,21 @@ class Spell extends SpriteComponent with HasGameReference {
   void update(double dt) {
     super.update(dt);
     if (_exploded) return;
-    final direction = (target - position).normalized();
-    position += direction * speed * dt;
-    if (position.distanceTo(target) < 8) {
+    _direction
+      ..setFrom(target)
+      ..sub(position);
+    final distSq = _direction.length2;
+    if (distSq < 8 * 8) {
       _exploded = true;
       onImpact(position, damage);
       removeFromParent();
+      return;
     }
+    if (distSq > 0) {
+      _direction.scale(1.0 / _direction.length);
+    }
+    position.x += _direction.x * speed * dt;
+    position.y += _direction.y * speed * dt;
   }
 
   @override
@@ -49,15 +67,13 @@ class Spell extends SpriteComponent with HasGameReference {
       canvas.drawCircle(
         Offset(size.x / 2, size.y / 2),
         size.x / 2,
-        Paint()..color = color,
+        _corePaint,
       );
     }
     canvas.drawCircle(
       Offset(size.x / 2, size.y / 2),
       size.x / 2 + 4,
-      Paint()
-        ..color = color.withValues(alpha: 0.3)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+      _glowPaint,
     );
   }
 }

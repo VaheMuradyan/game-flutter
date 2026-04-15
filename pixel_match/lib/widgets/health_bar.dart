@@ -9,8 +9,8 @@ class HealthBar extends StatelessWidget {
   final String? label;
 
   const HealthBar({super.key, required this.progress,
-      this.fillColor = AppTheme.secondaryColor,
-      this.bgColor = const Color(0xFF333333),
+      this.fillColor = AppColors.accent,
+      this.bgColor = AppColors.surfaceAlt,
       this.height = 16, this.label});
 
   @override

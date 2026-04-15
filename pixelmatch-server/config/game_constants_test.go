@@ -8,14 +8,14 @@ func TestLeagueForLevel(t *testing.T) {
 		expected string
 	}{
 		{1, "Bronze"},
-		{10, "Bronze"},
-		{11, "Silver"},
-		{30, "Silver"},
-		{31, "Gold"},
-		{60, "Gold"},
-		{61, "Diamond"},
-		{99, "Diamond"},
-		{100, "Legend"},
+		{5, "Bronze"},
+		{6, "Silver"},
+		{12, "Silver"},
+		{13, "Gold"},
+		{22, "Gold"},
+		{23, "Diamond"},
+		{40, "Diamond"},
+		{41, "Legend"},
 		{500, "Legend"},
 	}
 

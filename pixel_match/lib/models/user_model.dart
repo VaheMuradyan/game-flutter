@@ -4,6 +4,7 @@ class UserModel {
   final String displayName;
   final String characterClass;
   final String photoUrl;
+  final String? blurHash;
   final int level;
   final int xp;
   final String league;
@@ -17,6 +18,7 @@ class UserModel {
     required this.displayName,
     required this.characterClass,
     this.photoUrl = '',
+    this.blurHash,
     this.level = 1,
     this.xp = 0,
     this.league = 'Bronze',
@@ -32,6 +34,7 @@ class UserModel {
       displayName: json['displayName'] ?? '',
       characterClass: json['characterClass'] ?? 'Warrior',
       photoUrl: json['photoUrl'] ?? '',
+      blurHash: json['blurHash'] as String?,
       level: json['level'] ?? 1,
       xp: json['xp'] ?? 0,
       league: json['league'] ?? 'Bronze',

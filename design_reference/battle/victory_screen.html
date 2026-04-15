@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VICTORY | Neo-Retro Arcade</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700;900&amp;family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ffb4ab",
+                        "on-surface": "#e2e0fc",
+                        "primary-fixed-dim": "#e8c426",
+                        "surface-container-low": "#1a1a2e",
+                        "on-tertiary": "#68000f",
+                        "primary": "#fff7e9",
+                        "on-primary-fixed-variant": "#554500",
+                        "surface-container": "#1e1e32",
+                        "on-surface-variant": "#d0c6ad",
+                        "inverse-on-surface": "#2f2e43",
+                        "tertiary-container": "#ffd1ce",
+                        "on-tertiary-container": "#b03136",
+                        "on-tertiary-fixed": "#410006",
+                        "on-background": "#e2e0fc",
+                        "secondary": "#5dd9d0",
+                        "on-secondary-fixed-variant": "#00504c",
+                        "error-container": "#93000a",
+                        "surface-dim": "#111125",
+                        "secondary-container": "#00a29a",
+                        "tertiary-fixed-dim": "#ffb3b0",
+                        "inverse-surface": "#e2e0fc",
+                        "surface": "#111125",
+                        "primary-container": "#ffd93d",
+                        "surface-bright": "#37374d",
+                        "on-tertiary-fixed-variant": "#8c1520",
+                        "tertiary": "#fff6f5",
+                        "on-error": "#690005",
+                        "secondary-fixed": "#7cf6ec",
+                        "on-secondary": "#003734",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed": "#00201e",
+                        "surface-tint": "#e8c426",
+                        "primary-fixed": "#ffe173",
+                        "surface-container-high": "#28283d",
+                        "surface-variant": "#333348",
+                        "on-primary-container": "#725e00",
+                        "surface-container-highest": "#333348",
+                        "outline-variant": "#4d4633",
+                        "outline": "#989079",
+                        "background": "#111125",
+                        "on-primary": "#3b2f00",
+                        "secondary-fixed-dim": "#5dd9d0",
+                        "inverse-primary": "#705d00",
+                        "surface-container-lowest": "#0c0c1f",
+                        "tertiary-fixed": "#ffdad8",
+                        "on-secondary-container": "#00302d",
+                        "on-primary-fixed": "#221b00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0rem",
+                        "lg": "0rem",
+                        "xl": "0rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Space Grotesk"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .pixel-step-shadow {
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,0.5);
+        }
+        .pixel-bg-pattern {
+            background-image: radial-gradient(#ffd93d 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-dim text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<!-- Top AppBar (from JSON) -->
+<header class="flex justify-between items-center w-full px-6 py-4 bg-[#111125] text-[#FFD93D] font-['Space_Grotesk'] uppercase tracking-tighter font-bold rounded-none border-b-4 border-[#1a1a2e] shadow-[0_4px_0_0_rgba(85,69,0,1)] z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined cursor-pointer hover:bg-[#333348] transition-all p-2 active:translate-y-1">menu</span>
+<h1 class="text-2xl font-black text-[#FFD93D] tracking-tighter">VICTORY</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined cursor-pointer hover:bg-[#333348] transition-all p-2 active:translate-y-1">settings</span>
+</div>
+</header>
+<!-- Main Victory Canvas -->
+<main class="relative h-[calc(100vh-144px)] flex items-center justify-center pixel-bg-pattern bg-opacity-5">
+<!-- Animated Confetti Background (Visual Only) -->
+<div class="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+<div class="absolute top-10 left-1/4 w-2 h-2 bg-primary-container"></div>
+<div class="absolute top-20 right-1/3 w-3 h-3 bg-secondary"></div>
+<div class="absolute bottom-40 left-10 w-2 h-2 bg-tertiary-container"></div>
+<div class="absolute top-60 right-10 w-4 h-4 bg-primary-container"></div>
+<div class="absolute bottom-20 right-1/4 w-2 h-2 bg-secondary"></div>
+</div>
+<!-- Center Victory Panel -->
+<div class="relative w-full max-w-md mx-4 bg-surface-container-high border-4 border-surface-container-highest p-1 pixel-step-shadow">
+<div class="bg-surface-container-low p-8 flex flex-col items-center text-center">
+<!-- Victory Title Block -->
+<div class="flex items-center justify-center gap-4 mb-8">
+<span class="material-symbols-outlined text-primary-container text-4xl" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<h2 class="font-headline font-black text-5xl md:text-6xl text-primary-container uppercase tracking-tighter drop-shadow-[0_4px_0_rgba(85,69,0,1)]">VICTORY!</h2>
+<span class="material-symbols-outlined text-primary-container text-4xl" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+</div>
+<!-- XP Gain Chip -->
+<div class="bg-surface-container-highest px-6 py-2 mb-8 flex items-center gap-3 border-b-4 border-surface-container">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-headline font-bold text-2xl text-primary tracking-tight">+50 XP</span>
+</div>
+<!-- Circular Progress Section -->
+<div class="relative w-56 h-56 mb-8 flex items-center justify-center">
+<!-- Segmented Ring (Simulated with SVGs and segments) -->
+<svg class="absolute inset-0 w-full h-full -rotate-90">
+<!-- Track -->
+<circle class="text-surface-container-highest" cx="112" cy="112" fill="none" r="100" stroke="currentColor" stroke-dasharray="10 2" stroke-width="16"></circle>
+<!-- Progress (60%) -->
+<circle class="text-primary-container" cx="112" cy="112" fill="none" r="100" stroke="currentColor" stroke-dasharray="377 628" stroke-width="16" style="stroke-dasharray: 377, 628;"></circle>
+</svg>
+<div class="z-10 flex flex-col items-center">
+<div class="w-24 h-24 bg-surface-container p-1 border-2 border-primary-container mb-2">
+<img class="w-full h-full object-cover" data-alt="8-bit pixel art character portrait of a medieval knight with golden helmet and glowing blue eyes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALFU0XOCseKrt9w3P8CXxfbQWZW08AJuGtxuW6_TTwR-yHW09kVvKHe-lNreZahBpsJn4wkXGWSLNo1Rat6SKMM8WCUdBF2YyjI2HaupxEPI4Kf8qWO6f3mDFnXDgpq3gzBVXX_doJ0YqtAlY55wTmkolafZyK-odXoKItWDXjRQ5pOOIMSTHfxIkCNkp2xK8WVjxjSNrtTWGaZY2ClGFarqCGT5lcp0SGNXygjg3Q5CFY_e4Nlbyd2rqavAi2CKmGoMufBkpjgw"/>
+</div>
+<span class="bg-primary-container text-on-primary-container font-headline font-black px-3 py-0.5 text-sm">LVL 12</span>
+</div>
+</div>
+<!-- League Info -->
+<div class="mb-8">
+<h3 class="font-headline font-bold text-primary-container text-xl tracking-widest uppercase mb-1">GOLD LEAGUE</h3>
+<p class="font-body text-on-surface-variant font-bold text-sm tracking-tighter">360 / 600 XP</p>
+</div>
+<!-- Stats Grid (Editorial Layout) -->
+<div class="w-full grid grid-cols-1 gap-1 mb-10">
+<div class="bg-surface-container-low flex justify-between items-center p-3 px-4 border-l-4 border-primary-container">
+<span class="font-label text-xs text-on-surface-variant uppercase">Damage Dealt</span>
+<span class="font-headline font-bold text-primary">1,240</span>
+</div>
+<div class="bg-surface-container-lowest flex justify-between items-center p-3 px-4 border-l-4 border-secondary">
+<span class="font-label text-xs text-on-surface-variant uppercase">Troops Deployed</span>
+<span class="font-headline font-bold text-primary">18</span>
+</div>
+<div class="bg-surface-container-low flex justify-between items-center p-3 px-4 border-l-4 border-tertiary-container">
+<span class="font-label text-xs text-on-surface-variant uppercase">Duration</span>
+<span class="font-headline font-bold text-primary">2:47</span>
+</div>
+</div>
+<!-- Buttons Row -->
+<div class="w-full grid grid-cols-2 gap-4">
+<button class="group relative bg-secondary-container text-on-secondary-container font-headline font-black py-4 uppercase tracking-tighter shadow-[0_6px_0_0_#00504c] active:translate-y-1 active:shadow-none transition-all">
+<span class="relative z-10">REMATCH</span>
+<div class="absolute inset-0 border-2 border-black opacity-20"></div>
+</button>
+<button class="group relative bg-on-tertiary-container text-primary font-headline font-black py-4 uppercase tracking-tighter shadow-[0_6px_0_0_#68000f] active:translate-y-1 active:shadow-none transition-all">
+<span class="relative z-10">ARENA</span>
+<div class="absolute inset-0 border-2 border-black opacity-20"></div>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Nav (from JSON) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center bg-[#111125] h-20 rounded-none border-t-4 border-[#1a1a2e]">
+<!-- Home -->
+<div class="text-[#333348] p-3 hover:text-[#5DD93D] transition-all cursor-pointer active:scale-90 duration-75 flex flex-col items-center">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase font-bold mt-1">HOME</span>
+</div>
+<!-- Games (Active as per Victory Context) -->
+<div class="bg-[#FFD93D] text-[#111125] p-3 shadow-[0_-4px_0_0_rgba(232,196,38,0.15)] cursor-pointer active:scale-90 duration-75 flex flex-col items-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sports_esports</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase font-bold mt-1">GAMES</span>
+</div>
+<!-- Leaderboard -->
+<div class="text-[#333348] p-3 hover:text-[#5DD93D] transition-all cursor-pointer active:scale-90 duration-75 flex flex-col items-center">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase font-bold mt-1">RANK</span>
+</div>
+<!-- Person -->
+<div class="text-[#333348] p-3 hover:text-[#5DD93D] transition-all cursor-pointer active:scale-90 duration-75 flex flex-col items-center">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] uppercase font-bold mt-1">PROFILE</span>
+</div>
+</nav>
+</body></html>

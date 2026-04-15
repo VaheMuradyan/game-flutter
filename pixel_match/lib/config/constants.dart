@@ -5,25 +5,34 @@ class AppConstants {
   static String get apiBaseUrl => Environment.apiHost;
   static String get wsBaseUrl => Environment.wsHost;
 
-  // XP
-  static const int xpPerWin = 50;
-  static const int xpPerLoss = -20;
+  // All tunable values below mirror design_reference/balance_sheet.md.
+  // Server constants in pixelmatch-server/config/game_constants.go must match.
+
+  // XP — balance_sheet.md §1
+  static const int xpPerWin = 75;
+  static const int xpPerLoss = -10;
   static const int startingXp = 0;
   static const int startingLevel = 1;
 
-  // Battle
-  static const int battleDurationSeconds = 180;
-  static const int startingTowerHealth = 1000;
+  // Battle — balance_sheet.md §3, §4
+  static const int battleDurationSeconds = 150;
+  static const int startingTowerHealth = 1200;
   static const double manaRegenPerSecond = 1.0;
   static const int maxMana = 10;
+  static const double startingMana = 5.0;
+  static const double troopCost = 3.0;
+  static const int troopBaseDamage = 50;
+  static const double troopSpeed = 60.0;
+  static const double spellCost = 5.0;
+  static const int spellDamage = 80;
 
-  // Leagues
+  // Leagues — balance_sheet.md §2
   static const Map<String, List<int>> leagueRanges = {
-    'Bronze': [1, 10],
-    'Silver': [11, 30],
-    'Gold': [31, 60],
-    'Diamond': [61, 99],
-    'Legend': [100, 9999],
+    'Bronze': [1, 5],
+    'Silver': [6, 12],
+    'Gold': [13, 22],
+    'Diamond': [23, 40],
+    'Legend': [41, 9999],
   };
 
   // Character classes
@@ -35,8 +44,8 @@ class AppConstants {
     'Healer',
   ];
 
-  // Swipe limits (free tier)
-  static const int dailyFreeSwipes = 20;
+  // Swipe limits — balance_sheet.md §6
+  static const int dailyFreeSwipes = 25;
 
   // Pixel emotes
   static const List<Map<String, String>> pixelEmotes = [
